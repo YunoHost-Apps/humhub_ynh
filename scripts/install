@@ -9,9 +9,6 @@ version='1.1.0'
 # Retrieve arguments
 	domain=$YNH_APP_ARG_DOMAIN
 	path=$YNH_APP_ARG_PATH
-	admin=$YNH_APP_ARG_ADMIN
-	is_public=$YNH_APP_ARG_IS_PUBLIC
-	language=$YNH_APP_ARG_LANGUAGE
 
 # Source YunoHost helpers
 	source /usr/share/yunohost/helpers
@@ -47,7 +44,6 @@ version='1.1.0'
 
 # Set permissions to app files
 	sudo chown -R root: $src_path
-	sudo chown -R www-data: $src_path/public_html
 	
 # Cron
 	echo "30 * * * * $src_path/public_html/yiic cron hourly >/dev/null 2>&1" > cron
@@ -60,11 +56,6 @@ version='1.1.0'
 	sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
 	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
 	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
-
-# If app is public, add url to SSOWat conf as skipped_uris
-	if [[ $is_public -eq 1 ]]; then
-	  ynh_app_setting_set "$app" unprotected_uris "/"
-	fi
 
 # Reload services
 	sudo service nginx reload

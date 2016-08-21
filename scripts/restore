@@ -26,7 +26,6 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Restore permissions to app files
 	sudo chown -R root: $src_path
-	sudo chown -R www-data: $src_path/public_html
 
 # MySQL
 	dbname=$app
