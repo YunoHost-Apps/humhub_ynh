@@ -26,8 +26,8 @@ version='1.1.0'
 	sudo chown -R root: $src_path
 	
 # Cron
-	echo "30 * * * * $src_path/public_html/yiic cron hourly >/dev/null 2>&1" > cron
-	echo "00 18 * * * $src_path/public_html/yiic cron daily >/dev/null 2>&1" > cron
+	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
+	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
 	sudo mv cron /etc/cron.d/${app}
 	sudo chown root /etc/cron.d/${app}
 
