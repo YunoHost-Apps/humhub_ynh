@@ -25,7 +25,7 @@ app=$YNH_APP_INSTANCE_NAME
 	sudo cp -a ./cron "/etc/cron.d/${app}"
 
 # Restore permissions to app files
-	sudo chown -R root: $src_path
+	sudo chown -R www-data: $src_path
 
 # MySQL
 	dbname=$app
