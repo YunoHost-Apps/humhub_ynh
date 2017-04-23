@@ -9,6 +9,9 @@
 LDAP settings:
 * hostname : localhost
 * port : 389
+* encryption : none
+* username : put something random
+* password : put something random
 * baseDn : ou=users,dc=yunohost,dc=org
 * loginFilter : (uid=%s)
 * userFilter : objectClass=mailAccount

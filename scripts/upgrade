@@ -4,7 +4,7 @@
 set -eu
 
 app=$YNH_APP_INSTANCE_NAME
-version='1.1.0'
+version='1.2.0'
 
 # Source YunoHost helpers
 	source /usr/share/yunohost/helpers
@@ -12,19 +12,39 @@ version='1.1.0'
 # Retrieve app settings
 	domain=$(ynh_app_setting_get "$app" domain)
 	path=$(ynh_app_setting_get "$app" path)
+	dbuser=$app
+	dbname=$app
+	dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 
-# Remove trailing "/" for next commands
-	path=${path%/}
+# Correct path: puts a / at the start and nothing at the end
+	if [ "${path:0:1}" != "/" ]; then
+		path="/$path"
+	fi
+	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
+		path="${path:0:${#path}-1}"
+	fi
 
 # Copy source files
-	src_path=/var/www/$app
 	sudo mkdir -p $src_path
 	sudo unzip -qq ../sources/humhub-$version.zip
 	sudo cp -a humhub-$version/. $src_path
 
+# Conf
+	app_conf=../conf/common.php
+	sed -i "s@DBNAME_TO_CHANGE@$dbname@g" $app_conf
+	sed -i "s@DBUSER_TO_CHANGE@$dbuser@g" $app_conf
+	sed -i "s@DBPASS_TO_CHANGE@$dbpass@g" $app_conf
+	sudo cp $app_conf $src_path/protected/config/common.php
+
+# Hotfixes
+	# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
+	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
+	# Fix to allow passwordless LDAP login
+	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
+
 # Set permissions to app files
 	sudo chown -R www-data: $src_path
-	
+
 # Cron
 	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
 	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
@@ -33,9 +53,10 @@ version='1.1.0'
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 	nginx_conf=../conf/nginx.conf
-	sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
+	sed -i "s@YNH_WWW_PATH@${path:-/}@g" $nginx_conf
 	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
 	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 # Reload nginx service
+	sudo service php5-fpm reload
 	sudo service nginx reload
