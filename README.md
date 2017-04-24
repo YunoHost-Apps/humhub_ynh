@@ -1,6 +1,8 @@
 ## HumHub
 HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP.
 
+![ScreenShot](https://www.humhub.org/img/features/app.png)
+
 It's perfect for individual:
 - Social Intranets
 - Enterprise Social Networks
