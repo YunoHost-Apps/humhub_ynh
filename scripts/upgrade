@@ -4,7 +4,8 @@
 set -eu
 
 app=$YNH_APP_INSTANCE_NAME
-version='1.2.0'
+version=$(cat ../sources/version)
+source='https://sourceforge.net/projects/humhub/files/'
 
 # Source YunoHost helpers
 	source /usr/share/yunohost/helpers
@@ -15,6 +16,7 @@ version='1.2.0'
 	dbuser=$app
 	dbname=$app
 	dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+	src_path=/var/www/$app
 
 # Correct path: puts a / at the start and nothing at the end
 	if [ "${path:0:1}" != "/" ]; then
@@ -25,27 +27,34 @@ version='1.2.0'
 	fi
 
 # Copy source files
+	sudo mv "$src_path" "$src_path.old"
 	sudo mkdir -p $src_path
-	sudo unzip -qq ../sources/humhub-$version.zip
+	sudo wget -q "${source}humhub-${version}.zip/download" -O humhub-${version}.zip
+	sudo unzip -qq humhub-${version}.zip
 	sudo cp -a humhub-$version/. $src_path
 
-# Conf
-	app_conf=../conf/common.php
-	sed -i "s@DBNAME_TO_CHANGE@$dbname@g" $app_conf
-	sed -i "s@DBUSER_TO_CHANGE@$dbuser@g" $app_conf
-	sed -i "s@DBPASS_TO_CHANGE@$dbpass@g" $app_conf
-	sudo cp $app_conf $src_path/protected/config/common.php
+# Restore files
+	sudo cp -a "$src_path.old/uploads/." "$src_path/uploads/."
+	sudo cp -a "$src_path.old/protected/runtime" "$src_path/protected/runtime"
+	sudo cp -a "$src_path.old/protected/config/." "$src_path/protected/config/"
+	sudo cp -a "$src_path.old/protected/modules/." "$src_path/protected/modules/"
+	sudo cp -a "$src_path.old/themes/." "$src_path/themes/"
 
 # Hotfixes
 	# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
 	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
 	# Fix to allow passwordless LDAP login
 	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
+	sudo sed -i "s@defined('YII_DEBUG') or define('YII_DEBUG', true);@//defined('YII_DEBUG') or define('YII_DEBUG', true);@g" $src_path/index.php
+		sudo sed -i "s@defined('YII_ENV') or define('YII_ENV', 'dev');@//defined('YII_ENV') or define('YII_ENV', 'dev');@g" $src_path/index.php
 
 # Set permissions to app files
 	sudo chown -R www-data: $src_path
 
-# Cron
+# Upgrade
+	sudo sudo -u www-data php $src_path/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0 > /dev/null 2>&1
+
+# Upgrade cron
 	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
 	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
 	sudo mv cron /etc/cron.d/${app}
@@ -55,8 +64,20 @@ version='1.2.0'
 	nginx_conf=../conf/nginx.conf
 	sed -i "s@YNH_WWW_PATH@${path:-/}@g" $nginx_conf
 	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
+	sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
 	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+
+# PHP
+	sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
+	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
+	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+	sudo cp ../conf/php-fpm.conf $finalphpconf
+	sudo chown root: $finalphpconf
+	sudo chmod 644 $finalphpconf
 
 # Reload nginx service
 	sudo service php5-fpm reload
 	sudo service nginx reload
+
+# Delete old source
+	sudo rm -rf "$src_path.old"

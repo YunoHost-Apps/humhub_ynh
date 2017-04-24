@@ -21,3 +21,6 @@ app=$YNH_APP_INSTANCE_NAME
 # Copy NGINX configuration
 	domain=$(ynh_app_setting_get "$app" domain)
 	ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "nginx.conf"
+
+# Copy PHP-FPM configuration
+	ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "php-fpm.conf"

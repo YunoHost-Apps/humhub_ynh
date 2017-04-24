@@ -1,4 +1,5 @@
 #!/bin/bash
+set -u
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -10,10 +11,13 @@ app=$YNH_APP_INSTANCE_NAME
 
 # Remove sources
 	sudo rm -rf /var/www/$app
-	sudo rm -f /etc/cron.d/${app}
+	sudo rm -f /etc/cron.d/$app
 
 # Remove nginx configuration file
 	sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+
+# Remove PHP-FPM configuration file
+	sudo rm -f /etc/php5/fpm/pool.d/$app.conf
 
 # MySQL
 	dbname=$app
@@ -21,5 +25,6 @@ app=$YNH_APP_INSTANCE_NAME
 	ynh_mysql_drop_db "$dbname" || true
 	ynh_mysql_drop_user "$dbuser" || true
 
-# Reload nginx service
+# Reload services
+	sudo service php5-fpm reload
 	sudo service nginx reload

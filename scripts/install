@@ -4,15 +4,18 @@
 set -eu
 
 app=$YNH_APP_INSTANCE_NAME
-version='1.2.0'
-source='https://github.com/humhub/humhub'
+version=$(cat ../sources/version)
+source='https://sourceforge.net/projects/humhub/files/'
 
 # Retrieve arguments
 	domain=$YNH_APP_ARG_DOMAIN
 	path=$YNH_APP_ARG_PATH
+	admin=$YNH_APP_ARG_ADMIN
+	is_public=$YNH_APP_ARG_IS_PUBLIC
 
 # Source YunoHost helpers
 	source /usr/share/yunohost/helpers
+	source ./_extrahelpers
 
 # Correct path: puts a / at the start and nothing at the end
 	if [ "${path:0:1}" != "/" ]; then
@@ -26,10 +29,16 @@ source='https://github.com/humhub/humhub'
 	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
 		|| ynh_die "Path not available: ${domain}${path}"
 
+# Check admin user parameter
+	ynh_user_exists "$admin" \
+	  || ynh_die "The chosen admin user does not exist"
+	ynh_app_setting_set "$app" admin "$admin"
+
 # Copy source files
 	src_path=/var/www/$app
 	sudo mkdir -p $src_path
-	sudo unzip -qq ../sources/humhub-${version}.zip
+	sudo wget -q "${source}humhub-${version}.zip/download" -O humhub-${version}.zip
+	sudo unzip -qq humhub-${version}.zip
 	sudo cp -a humhub-${version}/. $src_path
 
 # Hotfixes
@@ -37,6 +46,8 @@ source='https://github.com/humhub/humhub'
 	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
 	# Fix to allow passwordless LDAP login
 	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
+	sudo sed -i "s@defined('YII_DEBUG') or define('YII_DEBUG', true);@//defined('YII_DEBUG') or define('YII_DEBUG', true);@g" $src_path/index.php
+	sudo sed -i "s@defined('YII_ENV') or define('YII_ENV', 'dev');@//defined('YII_ENV') or define('YII_ENV', 'dev');@g" $src_path/index.php
 
 # MySQL
 	dbuser=$app
@@ -65,8 +76,60 @@ source='https://github.com/humhub/humhub'
 	nginx_conf=../conf/nginx.conf
 	sed -i "s@YNH_WWW_PATH@${path:-/}@g" $nginx_conf
 	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
+	sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
 	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+
+# PHP
+	sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
+	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
+	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+	sudo cp ../conf/php-fpm.conf $finalphpconf
+	sudo chown root: $finalphpconf
+	sudo chmod 644 $finalphpconf
 
 # Reload services
 	sudo service php5-fpm reload
 	sudo service nginx reload
+
+# Install
+	# Disable SSO
+	ynh_app_setting_set "$app" unprotected_uris "/"
+	sudo yunohost app ssowatconf
+
+	# Install with CURL
+	admin_temp_pass=$(ynh_string_random 6)
+	admin_email=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
+	admin_firstname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
+	admin_lastname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
+
+	ynh_local_curl "/index.php?r=installer/index/go" "go"
+
+	ynh_local_curl "/index.php?r=installer/config/basic" \
+		"ConfigBasicForm[name]=YunoHost"
+
+	ynh_local_curl "/index.php?r=installer/config/use-case" \
+		"UseCaseForm[useCase]=" \
+		"UseCaseForm[useCase]=other"
+
+	ynh_local_curl "/index.php?r=installer/config/admin" \
+		"User[username]=$admin" \
+		"User[email]=$admin_email" \
+		"Password[newPassword]=$admin_temp_pass" \
+		"Password[newPasswordConfirm]=$admin_temp_pass" \
+		"Profile[firstname]=$admin_firstname" \
+		"Profile[lastname]=$admin_lastname" \
+		"save"
+
+	ynh_local_curl "/index.php?r=installer/config/sample-data" \
+		"SampleDataForm[sampleData]=0"
+
+	# Populate the LDAP parameters
+	sed -i "s@YNH_ADMIN_USER@$admin@g" ../conf/ldap.sql
+	mysql -u ${dbuser} -p${dbpass} ${dbname} < ../conf/ldap.sql
+
+	# Enable SSO if chosen by the user
+	if [ $is_public = 0 ];
+	then
+	  	ynh_app_setting_delete $app unprotected_uris
+		sudo yunohost app ssowatconf
+	fi
