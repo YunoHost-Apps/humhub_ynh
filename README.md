@@ -1,4 +1,7 @@
 ## HumHub
+
+[![Integration level](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)
+
 HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP.
 
 ![ScreenShot](https://www.humhub.org/img/features/app.png)
