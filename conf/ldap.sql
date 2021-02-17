@@ -15,5 +15,4 @@ REPLACE INTO setting (`name`, `value`, `module_id`) VALUES
 ('auth.allowGuestAccess', '0', 'user'),
 ('auth.internalUsersCanInvite', '0', 'user');
 
-UPDATE `user` SET `auth_mode` = 'ldap' WHERE `user`.`username` = 'YNH_ADMIN_USER';
-
+UPDATE `user` SET `auth_mode` = 'ldap' WHERE `user`.`username` = '__ADMIN__';
