@@ -1,0 +1,7 @@
+SOURCE_URL=https://github.com/humhub/humhub/archive/v1.7.2.tar.gz
+SOURCE_SUM=dd02b47f995bace4e03aff4750772abaab205769c75ef9f22904171b7649c689
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FORMAT=tar.gz
+SOURCE_IN_SUBDIR=true
+SOURCE_FILENAME=
+SOURCE_EXTRACT=true
