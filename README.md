@@ -11,7 +11,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Overview
 HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP.
 
-**Shipped version:** 1.0
+**Shipped version:** 1.7.2
 
 ## Screenshots
 
@@ -27,7 +27,7 @@ How to configure this app: From an admin panel, a plain file with SSH, or any ot
 
 ## Documentation
 
- * Official documentation: Link to the official documentation of this app
+ * Official documentation: https://docs.humhub.org
  * YunoHost documentation: If specific documentation is needed, feel free to contribute.
 
 ## YunoHost specific features
@@ -57,7 +57,7 @@ https://yunohost.org/packaging_apps
 
  * Report a bug: https://github.com/YunoHost-Apps/humhub_ynh/issues
  * App website: https://www.humhub.org/
- * Upstream app repository: Link to the official repository of the upstream app.
+ * Upstream app repository: https://github.com/humhub/humhub
  * YunoHost website: https://yunohost.org/
 
 ---
