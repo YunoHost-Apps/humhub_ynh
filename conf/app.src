@@ -1,7 +1,7 @@
-SOURCE_URL=https://github.com/humhub/humhub/archive/v1.7.2.tar.gz
-SOURCE_SUM=dd02b47f995bace4e03aff4750772abaab205769c75ef9f22904171b7649c689
+SOURCE_URL=https://www.humhub.com/download/package/humhub-1.7.2.tar.gz
+SOURCE_SUM=e20e6f8d321a0d5c8907b00465846a4d57432fe386181ca6c73ad27a9967e83a
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
-SOURCE_FILENAME=
+SOURCE_FILENAME=humhub-1.7.2.tar.gz
 SOURCE_EXTRACT=true
