@@ -54,22 +54,6 @@ ynh_app_setting_set --app=$app --key=admin --value=$admin
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
-# FIND AND OPEN A PORT
-#=================================================
-ynh_script_progression --message="Finding an available port..." --time --weight=1
-
-# Find an available port
-port=$(ynh_find_port --port=8095)
-ynh_app_setting_set --app=$app --key=port --value=$port
-
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Installing dependencies..." --time --weight=1
-
-ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
 ynh_script_progression --message="Creating a MySQL database..." --time --weight=1
@@ -116,8 +100,21 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# ...
+# SETUP SQL CREDENTIALS
 #=================================================
+
+ynh_add_config --template="../conf/common.php" --destination="$final_path/protected/config/common.php"
+
+#=================================================
+# DEACTIVATE DEBUG MODE
+#=================================================
+
+ynh_replace_string --match_string="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --replace_string="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --target_file="$final_path/index.php"
+ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --replace_string="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --target_file="$final_path/index.php"
 
 #=================================================
 # SETUP APPLICATION WITH CURL
@@ -143,7 +140,36 @@ ynh_systemd_action --service_name=nginx --action=reload
 
 # Installation with curl
 ynh_script_progression --message="Finalizing installation..." --time --weight=1
-ynh_local_curl "/INSTALL_PATH" "key1=value1" "key2=value2" "key3=value3"
+
+admin_temp_pass=$(ynh_string_random 6)
+admin_email=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
+admin_firstname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
+admin_lastname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
+
+ynh_local_curl "/index.php?r=installer/index/go"
+
+local_curl_csrf "/index.php?r=installer/config/basic" \
+	"ConfigBasicForm[name]=YunoHost"
+
+local_curl_csrf "/index.php?r=installer/config/use-case" \
+	"UseCaseForm[useCase]=" \
+	"UseCaseForm[useCase]=other"
+
+local_curl_csrf "/index.php?r=installer/config/admin" \
+	`myynh_urlencode "User[username]=$admin"` \
+	`myynh_urlencode "User[email]=$admin_email"` \
+	`myynh_urlencode "Password[newPassword]=$admin_temp_pass"` \
+	`myynh_urlencode "Password[newPasswordConfirm]=$admin_temp_pass"` \
+	`myynh_urlencode "Profile[firstname]=${admin_firstname}"` \
+	`myynh_urlencode "Profile[lastname]=${admin_lastname}"` \
+	"save"
+
+local_curl_csrf "/index.php?r=installer/config/sample-data" \
+	"SampleDataForm[sampleData]=0"
+
+# Populate the LDAP parameters
+sed -i "s@__ADMIN__@$admin@g" ../conf/ldap.sql
+mysql -u $db_user -p${db_pwd} $db_name < ../conf/ldap.sql
 
 # Remove the public access
 ynh_permission_update --permission="main" --remove="visitors"
@@ -151,10 +177,6 @@ ynh_permission_update --permission="main" --remove="visitors"
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-
-ynh_add_config --template="../conf/common.php" --destination="$final_path/protected/config/common.php"
-
-ynh_replace_string --match_string="match_string" --replace_string="replace_string" --target_file="$final_path/CONFIG_FILE"
 
 #=================================================
 # STORE THE CONFIG FILE CHECKSUM
@@ -165,7 +187,7 @@ ynh_replace_string --match_string="match_string" --replace_string="replace_strin
 ### you can make a backup of this file before modifying it again if the admin had modified it.
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$final_path/CONFIG_FILE"
+ynh_store_file_checksum --file="$final_path/protected/config/common.php"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -174,70 +196,19 @@ ynh_store_file_checksum --file="$final_path/CONFIG_FILE"
 #=================================================
 
 # Set permissions to app files
-chown -R www-data: $final_path
+chown -R root: $final_path
+
+chown -R $app $final_path/assets
+chown -R $app $final_path/protected/config
+chown -R $app $final_path/protected/modules
+chown -R $app $final_path/protected/runtime
+chown -R $app $final_path/uploads/*
 
 #=================================================
-# SETUP LOGROTATE
+# SETUP CRON CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring log rotation..." --time --weight=1
 
-### `ynh_use_logrotate` is used to configure a logrotate configuration for the logs of this app.
-### Use this helper only if there is effectively a log file for this app.
-### If you're not using this helper:
-###		- Remove the section "BACKUP LOGROTATE" in the backup script
-###		- Remove also the section "REMOVE LOGROTATE CONFIGURATION" in the remove script
-###		- As well as the section "RESTORE THE LOGROTATE CONFIGURATION" in the restore script
-###		- And the section "SETUP LOGROTATE" in the upgrade script
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --time --weight=1
-
-yunohost service add $app --description="A short description of the app" --log="/var/log/$app/$app.log"
-
-### Additional options starting with 3.8:
-###
-### --needs_exposed_ports "$port" a list of ports that needs to be publicly exposed
-###                               which will then be checked by YunoHost's diagnosis system
-###                               (N.B. DO NOT USE THIS is the port is only internal!!!)
-###
-### --test_status "some command"  a custom command to check the status of the service
-###                               (only relevant if 'systemctl status' doesn't do a good job)
-###
-### --test_conf "some command"    some command similar to "nginx -t" that validates the conf of the service
-###
-### Re-calling 'yunohost service add' during the upgrade script is the right way
-### to proceed if you later realize that you need to enable some flags that
-### weren't enabled on old installs (be careful it'll override the existing
-### service though so you should re-provide all relevant flags when doing so)
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..." --time --weight=1
-
-### `ynh_systemd_action` is used to start a systemd service for an app.
-### Only needed if you have configure a systemd service
-### If you're not using these lines:
-###		- Remove the section "STOP SYSTEMD SERVICE" and "START SYSTEMD SERVICE" in the backup script
-###		- As well as the section "START SYSTEMD SERVICE" in the restore script
-###		- As well as the section"STOP SYSTEMD SERVICE" and "START SYSTEMD SERVICE" in the upgrade script
-###		- And the section "STOP SYSTEMD SERVICE" and "START SYSTEMD SERVICE" in the change_url script
-
-# Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-
-#=================================================
-# SETUP FAIL2BAN
-#=================================================
-ynh_script_progression --message="Configuring Fail2Ban..." --time --weight=1
-
-# Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # SETUP SSOWAT
@@ -262,65 +233,3 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 
 ynh_script_progression --message="Installation of $app completed" --last
-
-
-
-
-
-# Hotfixes
-	# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
-	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
-	# Fix to allow passwordless LDAP login
-	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
-	sudo sed -i "s@defined('YII_DEBUG') or define('YII_DEBUG', true);@//defined('YII_DEBUG') or define('YII_DEBUG', true);@g" $src_path/index.php
-	sudo sed -i "s@defined('YII_ENV') or define('YII_ENV', 'dev');@//defined('YII_ENV') or define('YII_ENV', 'dev');@g" $src_path/index.php
-
-
-
-# Set permissions to app files
-	sudo chown -R www-data: $src_path
-	
-# Cron
-	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
-	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
-	sudo mv cron /etc/cron.d/${app}
-	sudo chown root /etc/cron.d/${app}
-
-
-# Install
-	# Disable SSO
-	ynh_app_setting_set "$app" unprotected_uris "/"
-	sudo yunohost app ssowatconf
-
-	# Install with CURL
-	admin_temp_pass=$(ynh_string_random 6)
-	admin_email=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
-	admin_firstname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
-	admin_lastname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
-
-	ynh_local_curl "/index.php?r=installer/index/go" "go"
-
-	ynh_local_curl "/index.php?r=installer/config/basic" \
-		"ConfigBasicForm[name]=YunoHost"
-
-	ynh_local_curl "/index.php?r=installer/config/use-case" \
-		"UseCaseForm[useCase]=" \
-		"UseCaseForm[useCase]=other"
-
-	ynh_local_curl "/index.php?r=installer/config/admin" \
-		"User[username]=$admin" \
-		"User[email]=$admin_email" \
-		"Password[newPassword]=$admin_temp_pass" \
-		"Password[newPasswordConfirm]=$admin_temp_pass" \
-		"Profile[firstname]=$admin_firstname" \
-		"Profile[lastname]=$admin_lastname" \
-		"save"
-
-	ynh_local_curl "/index.php?r=installer/config/sample-data" \
-		"SampleDataForm[sampleData]=0"
-
-	# Populate the LDAP parameters
-	sed -i "s@YNH_ADMIN_USER@$admin@g" ../conf/ldap.sql
-	mysql -u $db_user -p${db_pwd} $db_name < ../conf/ldap.sql
-
-
