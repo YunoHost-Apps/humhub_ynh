@@ -157,12 +157,18 @@ ynh_add_fpm_config
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# APPLY LDAP PATCHES
+# MIGRATE DATABASE
 #=================================================
-ynh_script_progression --message="Applying LDAP patches..." --time --weight=1
+ynh_script_progression --message="Migrating database..." --time --weight=1
 
-# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
-# Fix to allow passwordless LDAP login
+sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii migrate/up --includeModuleMigrations=1
+
+#=================================================
+# UPDATE MODULES
+#=================================================
+ynh_script_progression --message="Updating modules..." --time --weight=1
+
+sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii module/update-all
 
 #=================================================
 # REINSTALL CRONTAB
@@ -170,19 +176,6 @@ ynh_script_progression --message="Applying LDAP patches..." --time --weight=1
 ynh_script_progression --message="Upgrading crontab..." --time --weight=1
 
 ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
-
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-
-### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
-### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
-# ynh_backup_if_checksum_is_different --file="$final_path/CONFIG_FILE"
-
-# ynh_replace_string --match_string="match_string" --replace_string="replace_string" --target_file="$final_path/CONFIG_FILE"
-
-# Recalculate and store the checksum of the file for the next upgrade.
-# ynh_store_file_checksum --file="$final_path/CONFIG_FILE"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -198,25 +191,6 @@ chown -R $app $final_path/protected/config
 chown -R $app $final_path/protected/modules
 chown -R $app $final_path/protected/runtime
 chown -R $app $final_path/uploads/*
-
-# This file contains the db password
-chmod g-rwx o-rwx $final_path/protected/config/dynamic.php
-
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --time --weight=1
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
-
-#=================================================
-# UPGRADE FAIL2BAN
-#=================================================
-ynh_script_progression --message="Reconfiguring Fail2Ban..." --time --weight=1
-
-# Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
 
 #=================================================
 # RELOAD NGINX
