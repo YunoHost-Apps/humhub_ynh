@@ -120,7 +120,7 @@ then
 	cp -a "$final_path.old/themes/." "$final_path/themes/"
 
 	# Delete old source
-	rm -rf "$final_path.old"
+	ynh_secure_remove --file="$final_path.old"
 fi
 
 #=================================================
@@ -130,13 +130,6 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..." -
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
-
-ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER

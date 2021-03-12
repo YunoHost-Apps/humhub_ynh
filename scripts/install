@@ -168,7 +168,7 @@ local_curl_csrf "/index.php?r=installer/config/sample-data" \
 	"SampleDataForm[sampleData]=0"
 
 # Populate the LDAP parameters
-sed -i "s@__ADMIN__@$admin@g" ../conf/ldap.sql
+ynh_replace_string --match_string="__ADMIN__" --replace_string="$admin" --target_file="../conf/ldap.sql"
 mysql -u $db_user -p${db_pwd} $db_name < ../conf/ldap.sql
 
 # Remove the public access
