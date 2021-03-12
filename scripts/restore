@@ -81,9 +81,6 @@ chown -R $app $final_path/protected/modules
 chown -R $app $final_path/protected/runtime
 chown -R $app $final_path/uploads/*
 
-# This file contains the db password
-chmod g-rwx o-rwx $final_path/protected/config/dynamic.php
-
 
 #=================================================
 # RESTORE THE PHP-FPM CONFIGURATION

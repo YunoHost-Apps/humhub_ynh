@@ -9,9 +9,10 @@
     "url": "https://www.humhub.org",
     "license": "free",
     "maintainer": {
-        "name": "Scith",
-        "url": "https://github.com/scith"
+        "name": "Nils Van Zuijlen",
+        "url": "https://github.com/nils-van-zuijlen"
     },
+    "version": "1.7.2~ynh1",
     "requirements": {
         "yunohost": ">= 4.0.0"
     },
