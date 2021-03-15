@@ -7,7 +7,7 @@
         "fr": "Réseau Social d'Entreprise."
     },
     "url": "https://www.humhub.org",
-    "license": "free",
+    "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "Nils Van Zuijlen",
         "url": "https://github.com/nils-van-zuijlen"
