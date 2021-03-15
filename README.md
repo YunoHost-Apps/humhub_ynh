@@ -11,15 +11,15 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 ## Overview
 HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP.
 
-**Shipped version:** 1.7.2
+**Shipped version:** 1.8.1
 
 ## Screenshots
 
-![](Link to a screenshot of this app.)
+![](https://www.humhub.com/static/img/enterprise/app_small.png)
 
 ## Demo
 
-* [Official demo](Link to a demo site for this app.)
+* [Official demo](https://www.humhub.com/en)
 
 ## Configuration
 
