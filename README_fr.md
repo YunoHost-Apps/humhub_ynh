@@ -13,15 +13,15 @@ HumHub est un logiciel libre de réseau social fait pour faciliter la communicat
 
 Il est léger, puissant et possède une interface agréable. Avec HumHub, vous pouvez créer votre propre réseau social personnalisé.
 
-**Version incluse :** 1.7.2
+**Version incluse :** 1.8.1
 
 ## Captures d'écran
 
-![](Lien vers une capture d'écran de cette application.)
+![](https://www.humhub.com/static/img/enterprise/app_small.png)
 
 ## Démo
 
-* [Démo officielle](Lien vers un site de démonstration de cette application.)
+* [Démo officielle](https://www.humhub.com/en)
 
 ## Configuration
 
