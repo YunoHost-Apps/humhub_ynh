@@ -22,7 +22,7 @@ admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 language=$(ynh_app_setting_get --app=$app --key=language)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
 #=================================================
 # CHECK VERSION
@@ -116,6 +116,8 @@ ynh_add_fpm_config
 # MIGRATE DATABASE
 #=================================================
 ynh_script_progression --message="Migrating database..." --weight=1
+
+chown -R $app $final_path/
 
 sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii migrate/up --includeModuleMigrations=1
 
