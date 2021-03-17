@@ -23,7 +23,7 @@ HumHub est une plate-forme de réseau social open source avec une grande variét
 
 ## Configuration
 
-Comment configurer cette application : via le panneau d'administration, un fichier brut en SSH ou tout autre moyen.
+Comment configurer cette application : via le panneau d'administration.
 
 ## Documentation
 
@@ -49,9 +49,6 @@ Comment configurer cette application : via le panneau d'administration, un fichi
 ## Informations additionnelles
 
 * Autres informations que vous souhaitez ajouter sur cette application.
-
-**Plus d'informations sur la page de documentation :**  
-https://yunohost.org/packaging_apps
 
 ## Liens
 
