@@ -1,7 +1,7 @@
 # HumHub pour YunoHost
 
 [![Niveau d'intégration](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)  
-[![Installer humhub avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=humhub)
+[![Installer Humhub avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=humhub)
 
 *[Read this readme in english.](./README.md)* 
 
@@ -10,7 +10,6 @@ Si vous n'avez pas YunoHost, consultez [le guide](https://yunohost.org/#/install
 
 ## Vue d'ensemble
 HumHub est un logiciel libre de réseau social fait pour faciliter la communication et la collaboration.
-
 Il est léger, puissant et possède une interface agréable. Avec HumHub, vous pouvez créer votre propre réseau social personnalisé.
 
 **Version incluse :** 1.8.1
@@ -36,8 +35,8 @@ Comment configurer cette application : via le panneau d'administration, un fichi
 
 #### Support multi-utilisateur
 
-* L'authentification LDAP et HTTP est-elle prise en charge ?
-* L'application peut-elle être utilisée par plusieurs utilisateurs ?
+* L'authentification LDAP et HTTP est-elle prise en charge ? **Oui**
+* L'application peut-elle être utilisée par plusieurs utilisateurs ? **Oui**
 
 #### Architectures supportées
 
