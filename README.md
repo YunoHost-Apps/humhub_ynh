@@ -23,7 +23,7 @@ HumHub is an open source social network platform with a wide variety of use case
 
 ## Configuration
 
-How to configure this app: From an admin panel, a plain file with SSH, or any other way.
+How to configure this app: From an admin panel.
 
 ## Documentation
 
