@@ -3,9 +3,9 @@
 return [
     'components' => [
 		'db' => [
-            'dsn' => 'mysql:host=localhost;dbname=DBNAME_TO_CHANGE',
-            'username' => 'DBUSER_TO_CHANGE',
-            'password' => 'DBPASS_TO_CHANGE',
+            'dsn' => 'mysql:host=localhost;dbname=__DB_NAME__',
+            'username' => '__DB_USER__',
+            'password' => '__DB_PWD__',
         ],
     ]
 ];

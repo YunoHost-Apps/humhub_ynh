@@ -1,135 +1,230 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+ynh_clean_setup () {
+	### Remove this function if there's nothing to clean before calling the remove script.
+	true
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
+
+domain=$YNH_APP_ARG_DOMAIN
+path_url=$YNH_APP_ARG_PATH
+admin=$YNH_APP_ARG_ADMIN
+is_public=$YNH_APP_ARG_IS_PUBLIC
 
 app=$YNH_APP_INSTANCE_NAME
-version=$(cat ../sources/version)
-source='https://sourceforge.net/projects/humhub/files/'
 
-# Retrieve arguments
-	domain=$YNH_APP_ARG_DOMAIN
-	path=$YNH_APP_ARG_PATH
-	admin=$YNH_APP_ARG_ADMIN
-	is_public=$YNH_APP_ARG_IS_PUBLIC
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
+ynh_script_progression --message="Validating installation parameters..." --weight=1
 
-# Source YunoHost helpers
-	source /usr/share/yunohost/helpers
-	source ./_extrahelpers
+final_path=/var/www/$app
+test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
-# Correct path: puts a / at the start and nothing at the end
-	if [ "${path:0:1}" != "/" ]; then
-		path="/$path"
-	fi
-	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
-		path="${path:0:${#path}-1}"
-	fi
+# Register (book) web path
+ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
-# Check domain/path availability
-	sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-		|| ynh_die "Path not available: ${domain}${path}"
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
+ynh_script_progression --message="Storing installation settings..." --weight=1
 
-# Check admin user parameter
-	ynh_user_exists "$admin" \
-	  || ynh_die "The chosen admin user does not exist"
-	ynh_app_setting_set "$app" admin "$admin"
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
 
-# Copy source files
-	src_path=/var/www/$app
-	sudo mkdir -p $src_path
-	sudo wget -q "${source}humhub-${version}.zip/download" -O humhub-${version}.zip
-	sudo unzip -qq humhub-${version}.zip
-	sudo cp -a humhub-${version}/. $src_path
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# CREATE A MYSQL DATABASE
+#=================================================
+ynh_script_progression --message="Creating a MySQL database..." --weight=1
 
-# Hotfixes
-	# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
-	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
-	# Fix to allow passwordless LDAP login
-	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
-	sudo sed -i "s@defined('YII_DEBUG') or define('YII_DEBUG', true);@//defined('YII_DEBUG') or define('YII_DEBUG', true);@g" $src_path/index.php
-	sudo sed -i "s@defined('YII_ENV') or define('YII_ENV', 'dev');@//defined('YII_ENV') or define('YII_ENV', 'dev');@g" $src_path/index.php
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
-# MySQL
-	dbuser=$app
-	dbname=$app
-	dbpass=$(ynh_string_random 12)
-	ynh_app_setting_set "$app" mysqlpwd "$dbpass"
-	ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
-	
-# Conf
-	app_conf=../conf/common.php
-	sed -i "s@DBNAME_TO_CHANGE@$dbname@g" $app_conf
-	sed -i "s@DBUSER_TO_CHANGE@$dbuser@g" $app_conf
-	sed -i "s@DBPASS_TO_CHANGE@$dbpass@g" $app_conf
-	sudo cp $app_conf $src_path/protected/config/common.php
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_script_progression --message="Setting up source files..." --weight=1
+
+ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$final_path"
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..." --weight=4
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..." --weight=2
+
+# Create a system user
+ynh_system_user_create --username=$app
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
+
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config --package="$extra_php_dependencies"
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+# SETUP SQL CREDENTIALS
+#=================================================
+
+ynh_add_config --template="../conf/common.php" --destination="$final_path/protected/config/common.php"
+
+#=================================================
+# DEACTIVATE DEBUG MODE
+#=================================================
+
+ynh_replace_string --match_string="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --replace_string="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --target_file="$final_path/index.php"
+ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --replace_string="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --target_file="$final_path/index.php"
+
+#=================================================
+# SETUP APPLICATION WITH CURL
+#=================================================
+
+# Set right permissions for curl install
+chown -R $app: $final_path
+
+# Set the app as temporarily public for curl call
+ynh_script_progression --message="Configuring SSOwat..." --weight=30
+# Making the app public for curl
+ynh_permission_update --permission="main" --add="visitors"
+# Reload SSOwat config
+yunohost app ssowatconf
+
+# Reload NGINX
+ynh_systemd_action --service_name=nginx --action=reload
+
+# Installation with curl
+ynh_script_progression --message="Finalizing installation..." --weight=2
+
+admin_temp_pass=$(ynh_string_random 6)
+admin_email=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
+admin_firstname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
+admin_lastname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
+
+ynh_local_curl "/index.php?r=installer/index/go"
+
+local_curl_csrf "/index.php?r=installer/config/basic" \
+	"ConfigBasicForm[name]=YunoHost"
+
+local_curl_csrf "/index.php?r=installer/config/use-case" \
+	"UseCaseForm[useCase]=" \
+	"UseCaseForm[useCase]=other"
+
+local_curl_csrf "/index.php?r=installer/config/admin" \
+	`myynh_urlencode "User[username]=$admin"` \
+	`myynh_urlencode "User[email]=$admin_email"` \
+	`myynh_urlencode "Password[newPassword]=$admin_temp_pass"` \
+	`myynh_urlencode "Password[newPasswordConfirm]=$admin_temp_pass"` \
+	`myynh_urlencode "Profile[firstname]=${admin_firstname}"` \
+	`myynh_urlencode "Profile[lastname]=${admin_lastname}"` \
+	"save"
+
+local_curl_csrf "/index.php?r=installer/config/sample-data" \
+	"SampleDataForm[sampleData]=0"
+
+# Populate the LDAP parameters
+ynh_replace_string --match_string="__ADMIN__" --replace_string="$admin" --target_file="../conf/ldap.sql"
+mysql -u $db_user -p${db_pwd} $db_name < ../conf/ldap.sql
+
+# Remove the public access
+ynh_permission_update --permission="main" --remove="visitors"
+
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+
+#=================================================
+# STORE THE CONFIG FILE CHECKSUM
+#=================================================
+
+### `ynh_store_file_checksum` is used to store the checksum of a file.
+### That way, during the upgrade script, by using `ynh_backup_if_checksum_is_different`,
+### you can make a backup of this file before modifying it again if the admin had modified it.
+
+# Calculate and store the config file checksum into the app settings
+ynh_store_file_checksum --file="$final_path/protected/config/common.php"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
 
 # Set permissions to app files
-	sudo chown -R www-data: $src_path
-	
-# Cron
-	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
-	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
-	sudo mv cron /etc/cron.d/${app}
-	sudo chown root /etc/cron.d/${app}
+chown -R root: $final_path
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-	nginx_conf=../conf/nginx.conf
-	sed -i "s@YNH_WWW_PATH@${path:-/}@g" $nginx_conf
-	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
-	sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
-	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+chown -R $app $final_path/assets
+chown -R $app $final_path/protected/config
+chown -R $app $final_path/protected/modules
+chown -R $app $final_path/protected/runtime
+chown -R $app $final_path/uploads/*
 
-# PHP
-	sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
-	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-	sudo cp ../conf/php-fpm.conf $finalphpconf
-	sudo chown root: $finalphpconf
-	sudo chmod 644 $finalphpconf
+#=================================================
+# SETUP CRON CONFIGURATION
+#=================================================
 
-# Reload services
-	sudo service php5-fpm reload
-	sudo service nginx reload
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 
-# Install
-	# Disable SSO
-	ynh_app_setting_set "$app" unprotected_uris "/"
-	sudo yunohost app ssowatconf
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_script_progression --message="Configuring permissions..." --weight=35
 
-	# Install with CURL
-	admin_temp_pass=$(ynh_string_random 6)
-	admin_email=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
-	admin_firstname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
-	admin_lastname=$(sudo yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	ynh_permission_update --permission="main" --add="visitors"
+fi
 
-	ynh_local_curl "/index.php?r=installer/index/go" "go"
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=2
 
-	ynh_local_curl "/index.php?r=installer/config/basic" \
-		"ConfigBasicForm[name]=YunoHost"
+ynh_systemd_action --service_name=nginx --action=reload
 
-	ynh_local_curl "/index.php?r=installer/config/use-case" \
-		"UseCaseForm[useCase]=" \
-		"UseCaseForm[useCase]=other"
+#=================================================
+# END OF SCRIPT
+#=================================================
 
-	ynh_local_curl "/index.php?r=installer/config/admin" \
-		"User[username]=$admin" \
-		"User[email]=$admin_email" \
-		"Password[newPassword]=$admin_temp_pass" \
-		"Password[newPasswordConfirm]=$admin_temp_pass" \
-		"Profile[firstname]=$admin_firstname" \
-		"Profile[lastname]=$admin_lastname" \
-		"save"
-
-	ynh_local_curl "/index.php?r=installer/config/sample-data" \
-		"SampleDataForm[sampleData]=0"
-
-	# Populate the LDAP parameters
-	sed -i "s@YNH_ADMIN_USER@$admin@g" ../conf/ldap.sql
-	mysql -u ${dbuser} -p${dbpass} ${dbname} < ../conf/ldap.sql
-
-	# Enable SSO if chosen by the user
-	if [ $is_public = 0 ];
-	then
-	  	ynh_app_setting_delete $app unprotected_uris
-		sudo yunohost app ssowatconf
-	fi
+ynh_script_progression --message="Installation of $app completed" --last
