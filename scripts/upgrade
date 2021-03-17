@@ -1,83 +1,164 @@
 #!/bin/bash
 
-# Exit on command errors and treat unset variables as an error
-set -eu
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
-version=$(cat ../sources/version)
-source='https://sourceforge.net/projects/humhub/files/'
 
-# Source YunoHost helpers
-	source /usr/share/yunohost/helpers
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+language=$(ynh_app_setting_get --app=$app --key=language)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
-# Retrieve app settings
-	domain=$(ynh_app_setting_get "$app" domain)
-	path=$(ynh_app_setting_get "$app" path)
-	dbuser=$app
-	dbname=$app
-	dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-	src_path=/var/www/$app
+#=================================================
+# CHECK VERSION
+#=================================================
 
-# Correct path: puts a / at the start and nothing at the end
-	if [ "${path:0:1}" != "/" ]; then
-		path="/$path"
-	fi
-	if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
-		path="${path:0:${#path}-1}"
-	fi
+upgrade_type=$(ynh_check_app_version_changed)
 
-# Copy source files
-	sudo mv "$src_path" "$src_path.old"
-	sudo mkdir -p $src_path
-	sudo wget -q "${source}humhub-${version}.zip/download" -O humhub-${version}.zip
-	sudo unzip -qq humhub-${version}.zip
-	sudo cp -a humhub-$version/. $src_path
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-# Restore files
-	sudo cp -a "$src_path.old/uploads/." "$src_path/uploads/."
-	sudo cp -a "$src_path.old/protected/runtime" "$src_path/protected/runtime"
-	sudo cp -a "$src_path.old/protected/config/." "$src_path/protected/config/"
-	sudo cp -a "$src_path.old/protected/modules/." "$src_path/protected/modules/"
-	sudo cp -a "$src_path.old/themes/." "$src_path/themes/"
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+	ynh_legacy_permissions_delete_all
 
-# Hotfixes
-	# Fix LDAP email. See https://github.com/humhub/humhub/issues/1949
-	sudo cp -a ../sources/fix/AuthClientHelpers.php $src_path/protected/humhub/modules/user/authclient/AuthClientHelpers.php
-	# Fix to allow passwordless LDAP login
-	sudo cp -a ../sources/fix/ZendLdapClient.php $src_path/protected/humhub/modules/user/authclient/ZendLdapClient.php
-	sudo sed -i "s@defined('YII_DEBUG') or define('YII_DEBUG', true);@//defined('YII_DEBUG') or define('YII_DEBUG', true);@g" $src_path/index.php
-		sudo sed -i "s@defined('YII_ENV') or define('YII_ENV', 'dev');@//defined('YII_ENV') or define('YII_ENV', 'dev');@g" $src_path/index.php
+	ynh_app_setting_delete --app=$app --key=is_public
+fi
 
-# Set permissions to app files
-	sudo chown -R www-data: $src_path
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
 
-# Upgrade
-	sudo sudo -u www-data php $src_path/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0 > /dev/null 2>&1
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# Restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
-# Upgrade cron
-	echo "30 * * * * $src_path/protected/yii cron hourly >/dev/null 2>&1" > cron
-	echo "00 18 * * * $src_path/protected/yii cron daily >/dev/null 2>&1" > cron
-	sudo mv cron /etc/cron.d/${app}
-	sudo chown root /etc/cron.d/${app}
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-	nginx_conf=../conf/nginx.conf
-	sed -i "s@YNH_WWW_PATH@${path:-/}@g" $nginx_conf
-	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
-	sed -i "s@YNH_WWW_APP@$app@g" $nginx_conf
-	sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+# Deactivate cron jobs
+ynh_secure_remove --file="/etc/cron.d/$app"
 
-# PHP
-	sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-	sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
-	finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-	sudo cp ../conf/php-fpm.conf $finalphpconf
-	sudo chown root: $finalphpconf
-	sudo chmod 644 $finalphpconf
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Upgrading source files..." --weight=1
 
-# Reload nginx service
-	sudo service php5-fpm reload
-	sudo service nginx reload
+	# Backup user contents
+	mv "$final_path" "$final_path.old"
 
-# Delete old source
-	sudo rm -rf "$src_path.old"
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path"
+
+	# Restore user contents
+	cp -a "$final_path.old/uploads/." "$final_path/uploads/."
+	cp -a "$final_path.old/protected/runtime" "$final_path/protected/runtime"
+	cp -a "$final_path.old/protected/config/." "$final_path/protected/config/"
+	cp -a "$final_path.old/protected/modules/." "$final_path/protected/modules/"
+	cp -a "$final_path.old/themes/." "$final_path/themes/"
+
+	# Delete old source
+	ynh_secure_remove --file="$final_path.old"
+fi
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=1
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
+
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config
+
+#=================================================
+# SPECIFIC UPGRADE
+#=================================================
+# MIGRATE DATABASE
+#=================================================
+ynh_script_progression --message="Migrating database..." --weight=1
+
+chown -R $app $final_path/
+
+sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii migrate/up --includeModuleMigrations=1
+
+#=================================================
+# UPDATE MODULES
+#=================================================
+ynh_script_progression --message="Updating modules..." --weight=1
+
+sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii module/update-all
+
+#=================================================
+# REINSTALL CRONTAB
+#=================================================
+ynh_script_progression --message="Upgrading crontab..." --weight=1
+
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+# Set permissions on app files
+chown -R root: $final_path
+
+chown -R $app $final_path/assets
+chown -R $app $final_path/protected/config
+chown -R $app $final_path/protected/modules
+chown -R $app $final_path/protected/runtime
+chown -R $app $final_path/uploads/*
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+
+ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Upgrade of $app completed" --last
