@@ -34,8 +34,8 @@ How to configure this app: From an admin panel, a plain file with SSH, or any ot
 
 #### Multi-user support
 
- * Are LDAP and HTTP auth supported?
- * Can the app be used by multiple users?
+ * Are LDAP and HTTP auth supported? **Yes**
+ * Can the app be used by multiple users? **Yes**
 
 #### Supported architectures
 
@@ -49,9 +49,6 @@ How to configure this app: From an admin panel, a plain file with SSH, or any ot
 ## Additional information
 
 * Other info you would like to add about this app.
-
-**More info on the documentation page:**  
-https://yunohost.org/packaging_apps
 
 ## Links
 
@@ -72,4 +69,3 @@ sudo yunohost app install https://github.com/YunoHost-Apps/humhub_ynh/tree/testi
 or
 sudo yunohost app upgrade humhub -u https://github.com/YunoHost-Apps/humhub_ynh/tree/testing --debug
 ```
-
