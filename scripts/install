@@ -190,8 +190,12 @@ ynh_store_file_checksum --file="$final_path/protected/config/common.php"
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set permissions to app files
+# Set permissions on app files
 chown -R root: $final_path
+
+# Remove permission to others than $app and www-data (nginx user)
+chmod o-rwx $final_path
+chown $app:www-data $final_path
 
 chown -R $app $final_path/assets
 chown -R $app $final_path/protected/config
