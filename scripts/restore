@@ -72,8 +72,12 @@ ynh_system_user_create --username=$app
 # RESTORE USER RIGHTS
 #=================================================
 
-# Restore permissions on app files
+# Set permissions on app files
 chown -R root: $final_path
+
+# Remove permission to others than $app and www-data (nginx user)
+chmod o-rwx $final_path
+chown $app:www-data $final_path
 
 chown -R $app $final_path/assets
 chown -R $app $final_path/protected/config
