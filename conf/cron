@@ -1,2 +1,2 @@
-* * * * * /usr/bin/php__PHPVERSION__  __FINALPATH__/protected/yii queue/run >/dev/null 2>&1
-* * * * * /usr/bin/php__PHPVERSION__  __FINALPATH__/protected/yii cron/run >/dev/null 2>&1
+* * * * * __NAME__ /usr/bin/php__PHPVERSION__  __FINALPATH__/protected/yii queue/run >/dev/null 2>&1
+* * * * * __NAME__ /usr/bin/php__PHPVERSION__  __FINALPATH__/protected/yii cron/run >/dev/null 2>&1
