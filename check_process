@@ -12,7 +12,7 @@
         setup_private=1
         setup_public=1
         upgrade=1
-        upgrade=1   from_commit=ecc6afe689c02b2d437f9d81abb66df6f2f911c0
+        upgrade=1   from_commit=6b47f5e5d81ac3239709d581b25a2fa331226843
         backup_restore=1
         multi_instance=1
         port_already_use=0
@@ -21,7 +21,7 @@
 Email=
 Notification=none
 ;;; Upgrade options
-    ; commit=ecc6afe689c02b2d437f9d81abb66df6f2f911c0
+    ; commit=6b47f5e5d81ac3239709d581b25a2fa331226843
         name=Name and date of the commit.
         manifest_arg=domain=DOMAIN&path=PATH&admin=USER&is_public=1&
 

@@ -12,7 +12,7 @@
         "name": "Nils Van Zuijlen",
         "url": "https://github.com/nils-van-zuijlen"
     },
-    "version": "1.8.1~ynh2",
+    "version": "1.8.2~ynh1",
     "requirements": {
         "yunohost": ">= 4.1.7"
     },
