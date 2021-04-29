@@ -113,6 +113,17 @@ ynh_add_fpm_config
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
+# DEACTIVATE DEBUG MODE
+#=================================================
+
+ynh_replace_string --match_string="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --replace_string="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --target_file="$final_path/index.php"
+ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --replace_string="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --target_file="$final_path/index.php"
+
+#=================================================
 # MIGRATE DATABASE
 #=================================================
 ynh_script_progression --message="Migrating database..." --weight=1
