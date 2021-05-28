@@ -137,9 +137,9 @@ ynh_systemd_action --service_name=nginx --action=reload
 ynh_script_progression --message="Finalizing installation..." --weight=2
 
 admin_temp_pass=$(ynh_string_random 6)
-admin_email=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key mail)
-admin_firstname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key firstname)
-admin_lastname=$(yunohost user info "$admin" --output-as plain | ynh_get_plain_key lastname)
+admin_email=$(ynh_user_get_info "$admin" mail)
+admin_firstname=$(ynh_user_get_info "$admin" firstname)
+admin_lastname=$(ynh_user_get_info "$admin" lastname)
 
 ynh_local_curl "/index.php?r=installer/index/go"
 
