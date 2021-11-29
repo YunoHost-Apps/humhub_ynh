@@ -136,35 +136,44 @@ ynh_systemd_action --service_name=nginx --action=reload
 # Installation with curl
 ynh_script_progression --message="Finalizing installation..." --weight=2
 
-admin_temp_pass=$(ynh_string_random 6)
-admin_email=$(ynh_user_get_info "$admin" mail)
-admin_firstname=$(ynh_user_get_info "$admin" firstname)
-admin_lastname=$(ynh_user_get_info "$admin" lastname)
+pushd $final_path/protected
+	php${YNH_PHP_VERSION} yii migrate/up --includeModuleMigrations=1 --interactive=0
 
-ynh_local_curl "/index.php?r=installer/index/go"
+	php${YNH_PHP_VERSION} yii settings/set ldap enabled '1'
+	php${YNH_PHP_VERSION} yii settings/set ldap hostname 'localhost'
+	php${YNH_PHP_VERSION} yii settings/set ldap port 389
+	php${YNH_PHP_VERSION} yii settings/set ldap encryption ''
+	php${YNH_PHP_VERSION} yii settings/set ldap username ''
+	php${YNH_PHP_VERSION} yii settings/set ldap password ''
+	php${YNH_PHP_VERSION} yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
+	php${YNH_PHP_VERSION} yii settings/set ldap loginFilter '(uid=%s)'
+	php${YNH_PHP_VERSION} yii settings/set ldap userFilter 'objectClass=mailAccount'
+	php${YNH_PHP_VERSION} yii settings/set ldap emailAttribute 'mail'
+	php${YNH_PHP_VERSION} yii settings/set ldap usernameAttribute 'uid'
+	php${YNH_PHP_VERSION} yii settings/set ldap idAttribute 'uid'
+	php${YNH_PHP_VERSION} yii settings/set ldap refreshUsers '1'
+	php${YNH_PHP_VERSION} yii settings/set ldap refreshUsers '1'
 
-local_curl_csrf "/index.php?r=installer/config/basic" \
-	"ConfigBasicForm[name]=YunoHost"
+	php${YNH_PHP_VERSION} yii ldap/sync
+	php${YNH_PHP_VERSION} yii user/make-admin ${admin}
 
-local_curl_csrf "/index.php?r=installer/config/use-case" \
-	"UseCaseForm[useCase]=" \
-	"UseCaseForm[useCase]=other"
+	ynh_local_curl "/index.php?r=installer/index/go"
 
-local_curl_csrf "/index.php?r=installer/config/admin" \
-	`myynh_urlencode "User[username]=$admin"` \
-	`myynh_urlencode "User[email]=$admin_email"` \
-	`myynh_urlencode "Password[newPassword]=$admin_temp_pass"` \
-	`myynh_urlencode "Password[newPasswordConfirm]=$admin_temp_pass"` \
-	`myynh_urlencode "Profile[firstname]=${admin_firstname}"` \
-	`myynh_urlencode "Profile[lastname]=${admin_lastname}"` \
-	"save"
+	local_curl_csrf "/index.php?r=installer/config/basic" \
+		"ConfigBasicForm[name]=YunoHost"
 
-local_curl_csrf "/index.php?r=installer/config/sample-data" \
-	"SampleDataForm[sampleData]=0"
+	local_curl_csrf "/index.php?r=installer/config/use-case" \
+		"UseCaseForm[useCase]=" \
+		"UseCaseForm[useCase]=other"
 
-# Populate the LDAP parameters
-ynh_replace_string --match_string="__ADMIN__" --replace_string="$admin" --target_file="../conf/ldap.sql"
-mysql -u $db_user -p${db_pwd} $db_name < ../conf/ldap.sql
+	local_curl_csrf "/index.php?r=installer/config/sample-data" \
+		"SampleDataForm[sampleData]=0"
+
+	php${YNH_PHP_VERSION} yii settings/set user auth.anonymousRegistration '0'
+	php${YNH_PHP_VERSION} yii settings/set user auth.allowGuestAccess '0'
+	php${YNH_PHP_VERSION} yii settings/set user auth.internalUsersCanInvite '0'
+
+popd
 
 # Remove the public access
 ynh_permission_update --permission="main" --remove="visitors"
