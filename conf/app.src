@@ -1,9 +1,9 @@
-SOURCE_URL=https://www.humhub.com/download/package/humhub-1.8.2.tar.gz
-SOURCE_SUM=181d9c4519f4612949fd67e84f61ead618b200bc813fd179603c7b32f4a6e3b9
+SOURCE_URL=https://www.humhub.com/download/package/humhub-1.11.1.tar.gz
+SOURCE_SUM=05f90932ae9ca933ae585844607a67efa8356f7d9cd550fcb86c8904bf7eb9de
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
-SOURCE_FILENAME=humhub-1.8.2.tar.gz
+SOURCE_FILENAME=humhub-1.11.1.tar.gz
 SOURCE_EXTRACT=true
 
 
