@@ -3,16 +3,23 @@
     "id": "humhub",
     "packaging_format": 1,
     "description": {
-        "en": "Enterprise Social Network.",
-        "fr": "Réseau Social d'Entreprise."
+        "en": "Enterprise Social Network",
+        "fr": "Réseau Social d'Entreprise"
     },
+    "version": "1.11.1~ynh1",
     "url": "https://www.humhub.org",
+    "upstream": {
+        "license": "AGPL-3.0-only",
+        "website": "https://www.humhub.org",
+        "demo": "https://www.humhub.com/en",
+        "admindoc": "https://docs.humhub.org",
+        "code": "https://github.com/humhub/humhub"
+    },
     "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "Nils Van Zuijlen",
         "url": "https://github.com/nils-van-zuijlen"
     },
-    "version": "1.11.1~ynh1",
     "requirements": {
         "yunohost": ">= 4.3.0"
     },
