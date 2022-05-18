@@ -8,6 +8,9 @@ YNH_PHP_VERSION="7.3"
 
 extra_php_dependencies="php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-apcu-bc php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-ldap"
 
+HUMHUB_AUTH_BASIC_VERSION=0.1.0
+HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
+
 #=================================================
 # PERSONAL HELPERS
 #=================================================
@@ -68,6 +71,19 @@ myynh_urlencode() {
     fi
     echo "${data##/?}"
     return 0
+}
+
+enable_sso() {
+    tmp_auth_basic_module="$(mktemp /tmp/humhub_ynh.XXXXXX)"
+    wget -q -O $tmp_auth_basic_module "https://github.com/smart4life/humhub-auth-basic/archive/refs/tags/$HUMHUB_AUTH_BASIC_VERSION.tar.gz"
+
+    tar xf $tmp_auth_basic_module -C $final_path/protected/modules
+    mv $final_path/protected/modules/humhub-auth-basic* $final_path/$HUMHUB_AUTH_BASIC_PATH
+
+    pushd $final_path/protected/
+    php${YNH_PHP_VERSION} yii module/enable auth-basic
+    popd
+    rm -rf $tmp_auth_basic_module
 }
 
 #=================================================

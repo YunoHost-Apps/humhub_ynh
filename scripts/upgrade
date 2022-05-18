@@ -84,6 +84,16 @@ then
 
 	# Delete old source
 	ynh_secure_remove --file="$final_path.old"
+
+	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
+			enable_sso
+	else
+			current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
+			if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
+				rm -rf $final_path/$HUMHUB_AUTH_BASIC_PATH
+				enable_sso
+			fi
+	fi
 fi
 
 #=================================================
