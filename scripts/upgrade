@@ -95,6 +95,10 @@ then
 	ynh_secure_remove --file="$final_path.old"
 fi
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
@@ -162,18 +166,18 @@ chmod 644 "/etc/cron.d/$app"
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set permissions on app files
-chown -R root: $final_path
+# # Set permissions on app files
+# chown -R root: $final_path
 
-# Remove permission to others than $app and www-data (nginx user)
-chmod o-rwx $final_path
-chown $app:www-data $final_path
+# # Remove permission to others than $app and www-data (nginx user)
+# chmod o-rwx $final_path
+# chown $app:www-data $final_path
 
-chown -R $app $final_path/assets
-chown -R $app $final_path/protected/config
-chown -R $app $final_path/protected/modules
-chown -R $app $final_path/protected/runtime
-chown -R $app $final_path/uploads
+# chown -R $app $final_path/assets
+# chown -R $app $final_path/protected/config
+# chown -R $app $final_path/protected/modules
+# chown -R $app $final_path/protected/runtime
+# chown -R $app $final_path/uploads
 
 #=================================================
 # RELOAD NGINX
