@@ -175,6 +175,8 @@ pushd $final_path/protected
 
 popd
 
+enable_sso
+
 # Remove the public access
 ynh_permission_update --permission="main" --remove="visitors"
 
