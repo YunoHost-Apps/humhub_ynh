@@ -172,7 +172,7 @@ chown -R $app $final_path/assets
 chown -R $app $final_path/protected/config
 chown -R $app $final_path/protected/modules
 chown -R $app $final_path/protected/runtime
-chown -R $app $final_path/uploads/*
+chown -R $app $final_path/uploads
 
 #=================================================
 # RELOAD NGINX
