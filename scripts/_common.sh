@@ -73,16 +73,13 @@ myynh_urlencode() {
     return 0
 }
 
-enable_sso() {
+install_sso() {
     tmp_auth_basic_module="$(mktemp /tmp/humhub_ynh.XXXXXX)"
     wget -q -O $tmp_auth_basic_module "https://github.com/smart4life/humhub-auth-basic/archive/refs/tags/$HUMHUB_AUTH_BASIC_VERSION.tar.gz"
 
     tar xf $tmp_auth_basic_module -C $final_path/protected/modules
     mv $final_path/protected/modules/humhub-auth-basic* $final_path/$HUMHUB_AUTH_BASIC_PATH
 
-    pushd $final_path/protected/
-    php${YNH_PHP_VERSION} yii module/enable auth-basic
-    popd
     ynh_secure_remove $tmp_auth_basic_module
 }
 
