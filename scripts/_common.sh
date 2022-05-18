@@ -83,7 +83,7 @@ enable_sso() {
     pushd $final_path/protected/
     php${YNH_PHP_VERSION} yii module/enable auth-basic
     popd
-    rm -rf $tmp_auth_basic_module
+    ynh_secure_remove $tmp_auth_basic_module
 }
 
 #=================================================
