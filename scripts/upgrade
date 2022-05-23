@@ -95,10 +95,6 @@ then
 	ynh_secure_remove --file="$final_path.old"
 fi
 
-# chmod 750 "$final_path"
-# chmod -R o-rwx "$final_path"
-# chown -R $app:www-data "$final_path"
-
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
@@ -138,18 +134,14 @@ ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev'
 #=================================================
 # MIGRATE DATABASE
 #=================================================
-ynh_script_progression --message="Migrating database..." --weight=1
+ynh_script_progression --message="Migrating database and modules..." --weight=1
 
-chown -R $app $final_path/
+chown -R $app $final_path
 
-sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii migrate/up --includeModuleMigrations=1
-
-#=================================================
-# UPDATE MODULES
-#=================================================
-ynh_script_progression --message="Updating modules..." --weight=1
-
-sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii module/update-all
+pushd $final_path
+	php$phpversion protected/yii migrate/up --includeModuleMigrations=1
+	php$phpversion protected/yii module/update-all
+popd
 
 #=================================================
 # REINSTALL CRONTAB
