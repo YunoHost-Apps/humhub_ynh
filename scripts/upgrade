@@ -84,6 +84,20 @@ then
 
 	# Delete old source
 	ynh_secure_remove --file="$final_path.old"
+
+	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
+			install_sso
+
+			pushd $final_path/protected
+				php${YNH_PHP_VERSION} yii module/enable auth-basic
+			popd
+	else
+			current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
+			if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
+				ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
+				install_sso
+			fi
+	fi
 fi
 
 #=================================================

@@ -136,6 +136,8 @@ ynh_systemd_action --service_name=nginx --action=reload
 # Installation with curl
 ynh_script_progression --message="Finalizing installation..." --weight=2
 
+install_sso
+
 pushd $final_path/protected
 	php${YNH_PHP_VERSION} yii migrate/up --includeModuleMigrations=1 --interactive=0
 
@@ -172,6 +174,8 @@ pushd $final_path/protected
 	php${YNH_PHP_VERSION} yii settings/set user auth.anonymousRegistration '0'
 	php${YNH_PHP_VERSION} yii settings/set user auth.allowGuestAccess '0'
 	php${YNH_PHP_VERSION} yii settings/set user auth.internalUsersCanInvite '0'
+
+	php${YNH_PHP_VERSION} yii module/enable auth-basic
 
 popd
 
