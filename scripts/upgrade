@@ -173,18 +173,9 @@ ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set permissions on app files
-chown -R root: $final_path
-
-# Remove permission to others than $app and www-data (nginx user)
-chmod o-rwx $final_path
-chown $app:www-data $final_path
-
-chown -R $app $final_path/assets
-chown -R $app $final_path/protected/config
-chown -R $app $final_path/protected/modules
-chown -R $app $final_path/protected/runtime
-chown -R $app $final_path/uploads
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # GENERIC FINALIZATION
