@@ -20,6 +20,7 @@ HumHub is an open source social network platform with a wide variety of use case
 
 **Shipped version:** 1.8.2~ynh3
 
+
 **Demo:** https://www.humhub.com/en
 
 ## Screenshots
