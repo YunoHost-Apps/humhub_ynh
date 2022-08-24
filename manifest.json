@@ -6,15 +6,22 @@
         "en": "Enterprise Social Network.",
         "fr": "Réseau Social d'Entreprise."
     },
+    "version": "1.8.2~ynh3",
     "url": "https://www.humhub.org",
+    "upstream": {
+        "license": "AGPL-3.0-only",
+        "website": "https://www.humhub.org",
+        "demo": "https://www.humhub.com/en",
+        "admindoc": "https://docs.humhub.org",
+        "code": "https://github.com/humhub/humhub"
+    },
     "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "Nils Van Zuijlen",
         "url": "https://github.com/nils-van-zuijlen"
     },
-    "version": "1.8.2~ynh3",
     "requirements": {
-        "yunohost": ">= 4.1.7"
+        "yunohost": ">= 4.3.0"
     },
     "multi_instance": true,
     "services": [
@@ -23,28 +30,26 @@
         "mysql"
     ],
     "arguments": {
-        "install" : [
+        "install": [
             {
                 "name": "domain",
-				"type": "domain",
-                "example": "example.com"
+                "type": "domain"
             },
             {
                 "name": "path",
-				"type": "path",
+                "type": "path",
                 "example": "/humhub",
                 "default": "/humhub"
             },
-			{
-                "name": "admin",
-                "type": "user",
-                "example": "johndoe"
-            },
-			{
+            {
                 "name": "is_public",
                 "type": "boolean",
                 "default": false
-			}
+            },
+            {
+                "name": "admin",
+                "type": "user"
+            }
         ]
     }
 }
