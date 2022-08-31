@@ -163,14 +163,14 @@ ynh_script_progression --message="Migrating database..." --weight=1
 
 chown -R $app $final_path/
 
-sudo -u $app /usr/bin/php$phpversion $final_path/protected/yii migrate/up --includeModuleMigrations=1
+ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0
 
 #=================================================
 # UPDATE MODULES
 #=================================================
 ynh_script_progression --message="Updating modules..." --weight=1
 
-sudo -u $app /usr/bin/php$phpversion $final_path/protected/yii module/update-all
+ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii module/update-all --interactive=0
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
