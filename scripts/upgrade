@@ -94,26 +94,12 @@ then
 
 	# Delete old source
 	ynh_secure_remove --file="$final_path.old"
-
-	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
-			install_sso
-
-			pushd $final_path/protected
-				php${YNH_PHP_VERSION} yii module/enable auth-basic
-			popd
-	else
-			current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
-			if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
-				ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
-				install_sso
-			fi
-	fi
 fi
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..." --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -124,6 +110,7 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -147,35 +134,54 @@ ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev'
  --target_file="$final_path/index.php"
 
 #=================================================
+# SETUP APPLICATION
+#=================================================
+
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Setuping application..." --weight=1
+
+	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
+			install_sso
+
+			pushd $final_path/protected
+				php$phpversion yii module/enable auth-basic
+			popd
+	else
+			current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
+			if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
+				ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
+				install_sso
+			fi
+	fi
+fi
+
+#=================================================
 # MIGRATE DATABASE
 #=================================================
 ynh_script_progression --message="Migrating database..." --weight=1
 
 chown -R $app $final_path/
 
-sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii migrate/up --includeModuleMigrations=1
+ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0
 
 #=================================================
 # UPDATE MODULES
 #=================================================
 ynh_script_progression --message="Updating modules..." --weight=1
 
-sudo -u $app /usr/bin/php$YNH_PHP_VERSION $final_path/protected/yii module/update-all
-
-#=================================================
-# REINSTALL CRONTAB
-#=================================================
-ynh_script_progression --message="Upgrading crontab..." --weight=1
-
-ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
-
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
+ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii module/update-all --interactive=0
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+
+#=================================================
+# UPGRADE CRONTAB
+#=================================================
+ynh_script_progression --message="Upgrading crontab..." --weight=1
+
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # GENERIC FINALIZATION

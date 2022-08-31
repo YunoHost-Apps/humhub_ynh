@@ -55,7 +55,7 @@ ynh_app_setting_set --app=$app --key=admin --value=$admin
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..."
+ynh_script_progression --message="Installing dependencies..." --weight=1
 
 ynh_install_app_dependencies $pkg_dependencies
 
@@ -149,25 +149,25 @@ ynh_script_progression --message="Finalizing installation..." --weight=2
 install_sso
 
 pushd $final_path/protected
-	php${YNH_PHP_VERSION} yii migrate/up --includeModuleMigrations=1 --interactive=0
+	php$phpversion yii migrate/up --includeModuleMigrations=1 --interactive=0
 
-	php${YNH_PHP_VERSION} yii settings/set ldap enabled '1'
-	php${YNH_PHP_VERSION} yii settings/set ldap hostname 'localhost'
-	php${YNH_PHP_VERSION} yii settings/set ldap port 389
-	php${YNH_PHP_VERSION} yii settings/set ldap encryption ''
-	php${YNH_PHP_VERSION} yii settings/set ldap username ''
-	php${YNH_PHP_VERSION} yii settings/set ldap password ''
-	php${YNH_PHP_VERSION} yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
-	php${YNH_PHP_VERSION} yii settings/set ldap loginFilter '(uid=%s)'
-	php${YNH_PHP_VERSION} yii settings/set ldap userFilter 'objectClass=mailAccount'
-	php${YNH_PHP_VERSION} yii settings/set ldap emailAttribute 'mail'
-	php${YNH_PHP_VERSION} yii settings/set ldap usernameAttribute 'uid'
-	php${YNH_PHP_VERSION} yii settings/set ldap idAttribute 'uid'
-	php${YNH_PHP_VERSION} yii settings/set ldap refreshUsers '1'
-	php${YNH_PHP_VERSION} yii settings/set ldap refreshUsers '1'
+	php$phpversion yii settings/set ldap enabled '1'
+	php$phpversion yii settings/set ldap hostname 'localhost'
+	php$phpversion yii settings/set ldap port 389
+	php$phpversion yii settings/set ldap encryption ''
+	php$phpversion yii settings/set ldap username ''
+	php$phpversion yii settings/set ldap password ''
+	php$phpversion yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
+	php$phpversion yii settings/set ldap loginFilter '(uid=%s)'
+	php$phpversion yii settings/set ldap userFilter 'objectClass=mailAccount'
+	php$phpversion yii settings/set ldap emailAttribute 'mail'
+	php$phpversion yii settings/set ldap usernameAttribute 'uid'
+	php$phpversion yii settings/set ldap idAttribute 'uid'
+	php$phpversion yii settings/set ldap refreshUsers '1'
+	php$phpversion yii settings/set ldap refreshUsers '1'
 
-	php${YNH_PHP_VERSION} yii ldap/sync
-	php${YNH_PHP_VERSION} yii user/make-admin ${admin}
+	php$phpversion yii ldap/sync
+	php$phpversion yii user/make-admin ${admin}
 
 	ynh_local_curl "/index.php?r=installer/index/go"
 
@@ -181,11 +181,11 @@ pushd $final_path/protected
 	local_curl_csrf "/index.php?r=installer/config/sample-data" \
 		"SampleDataForm[sampleData]=0"
 
-	php${YNH_PHP_VERSION} yii settings/set user auth.anonymousRegistration '0'
-	php${YNH_PHP_VERSION} yii settings/set user auth.allowGuestAccess '0'
-	php${YNH_PHP_VERSION} yii settings/set user auth.internalUsersCanInvite '0'
+	php$phpversion yii settings/set user auth.anonymousRegistration '0'
+	php$phpversion yii settings/set user auth.allowGuestAccess '0'
+	php$phpversion yii settings/set user auth.internalUsersCanInvite '0'
 
-	php${YNH_PHP_VERSION} yii module/enable auth-basic
+	php$phpversion yii module/enable auth-basic
 
 popd
 
@@ -194,19 +194,16 @@ ynh_permission_update --permission="main" --remove="visitors"
 
 ynh_store_file_checksum --file="$final_path/protected/config/common.php"
 
-#=================================================
-# SETUP CRON CONFIGURATION
-#=================================================
-
-ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
-
-#=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+
+#=================================================
+# SETUP CRON CONFIGURATION
+#=================================================
+ynh_script_progression --message="Setuping crontab..." --weight=1
+
+ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # GENERIC FINALIZATION
