@@ -6,7 +6,7 @@
         "en": "Enterprise Social Network.",
         "fr": "Réseau Social d'Entreprise."
     },
-    "version": "1.8.2~ynh3",
+    "version": "1.12.1~ynh1",
     "url": "https://www.humhub.org",
     "upstream": {
         "license": "AGPL-3.0-only",
@@ -26,7 +26,7 @@
     "multi_instance": true,
     "services": [
         "nginx",
-        "php7.3-fpm",
+        "php7.4-fpm",
         "mysql"
     ],
     "arguments": {
