@@ -1,5 +1,5 @@
-SOURCE_URL=https://www.humhub.com/download/package/humhub-1.12.1.tar.gz
-SOURCE_SUM=ed9200b5d81346d5e409819e1861512c3a4da87094ea51b90dea8ca63c381951
+SOURCE_URL=https://www.humhub.com/download/package/humhub-1.12.2.tar.gz
+SOURCE_SUM=91a96c7fc7e513bbb04d153e7112498daa36639e37587d6bdc9364cd57d09ea3
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
