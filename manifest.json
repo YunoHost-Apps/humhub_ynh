@@ -3,10 +3,10 @@
     "id": "humhub",
     "packaging_format": 1,
     "description": {
-        "en": "Enterprise Social Network.",
-        "fr": "Réseau Social d'Entreprise."
+        "en": "Enterprise Social Network",
+        "fr": "Réseau Social d'Entreprise"
     },
-    "version": "1.12.2~ynh1",
+    "version": "1.13.0~ynh1",
     "url": "https://www.humhub.org",
     "upstream": {
         "license": "AGPL-3.0-only",

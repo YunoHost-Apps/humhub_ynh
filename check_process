@@ -12,10 +12,6 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		# 1.8.2~ynh1
-		upgrade=1	from_commit=83500d6e866539d56a0aed6f288a8a8ce02a674b
-		# 1.8.2~ynh3
-		upgrade=1	from_commit=50c74393ad4376bc18676b4be86fce74629ad60a
 		# 1.8.2~ynh4
 		upgrade=1	from_commit=7da020da5079b580cc2a418e2f6fb48f637a989a
 		backup_restore=1
@@ -26,6 +22,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=83500d6e866539d56a0aed6f288a8a8ce02a674b
+	; commit=7da020da5079b580cc2a418e2f6fb48f637a989a
 		name=Name and date of the commit.
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&is_public=1&
