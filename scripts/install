@@ -210,7 +210,7 @@ ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring permissions..." --weight=35
+ynh_script_progression --message="Configuring permissions..." --weight=2
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
