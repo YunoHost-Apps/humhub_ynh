@@ -18,7 +18,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 HumHub is an open source social network platform with a wide variety of use cases as social intranet, community or collaboration platform. HumHub consists of a core application, which can be extended through additional modules and adjusted to your needs by many configuration options. 
 
 
-**Shipped version:** 1.13.0~ynh1
+**Shipped version:** 1.13.0~ynh2
 
 **Demo:** https://www.humhub.com/en
 
