@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # HumHub for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![Working status](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![Working status](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)
 [![Install HumHub with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=humhub)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -18,7 +18,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 HumHub is an open source social network platform with a wide variety of use cases as social intranet, community or collaboration platform. HumHub consists of a core application, which can be extended through additional modules and adjusted to your needs by many configuration options. 
 
 
-**Shipped version:** 1.13.0~ynh2
+**Shipped version:** 1.13.1~ynh1
 
 **Demo:** https://www.humhub.com/en
 
