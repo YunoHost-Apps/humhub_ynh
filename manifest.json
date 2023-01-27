@@ -6,7 +6,7 @@
         "en": "Enterprise Social Network",
         "fr": "Réseau Social d'Entreprise"
     },
-    "version": "1.13.0~ynh2",
+    "version": "1.13.0~ynh3",
     "url": "https://www.humhub.org",
     "upstream": {
         "license": "AGPL-3.0-only",
@@ -21,7 +21,7 @@
         "url": "https://github.com/nils-van-zuijlen"
     },
     "requirements": {
-        "yunohost": ">= 4.3.0"
+        "yunohost": ">= 11.0.9"
     },
     "multi_instance": true,
     "services": [
