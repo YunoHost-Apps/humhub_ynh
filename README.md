@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # HumHub for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![Working status](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![Working status](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)
 [![Install HumHub with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=humhub)
 
 *[Lire ce readme en français.](./README_fr.md)*
