@@ -12,8 +12,7 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		# 1.8.2~ynh4
-		upgrade=1	from_commit=7da020da5079b580cc2a418e2f6fb48f637a989a
+		#upgrade=1	from_commit=
 		backup_restore=1
 		multi_instance=1
 		port_already_use=0
@@ -22,6 +21,6 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=7da020da5079b580cc2a418e2f6fb48f637a989a
-		name=Name and date of the commit.
+	; commit=
+		name=
 		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&is_public=1&
