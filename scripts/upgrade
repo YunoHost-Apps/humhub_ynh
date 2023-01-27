@@ -25,10 +25,13 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
+fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
+fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
+
 #=================================================
 # CHECK VERSION
 #=================================================
-ynh_script_progression --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
 
@@ -52,6 +55,24 @@ ynh_abort_if_errors
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+
+# If fpm_footprint doesn't exist, create it
+if [ -z "$fpm_footprint" ]; then
+    fpm_footprint=low
+    ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
+fi
+
+# If fpm_free_footprint doesn't exist, create it
+if [ -z "$fpm_free_footprint" ]; then
+    fpm_free_footprint=0
+    ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
+fi
+
+# If fpm_usage doesn't exist, create it
+if [ -z "$fpm_usage" ]; then
+    fpm_usage=low
+    ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+fi
 
 # Cleaning legacy permissions
 if ynh_legacy_permissions_exists; then
@@ -109,7 +130,7 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -142,17 +163,17 @@ then
 	ynh_script_progression --message="Setuping application..." --weight=1
 
 	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
-			install_sso
+		install_sso
 
-			pushd $final_path/protected
-				php$phpversion yii module/enable auth-basic
-			popd
+		pushd $final_path/protected
+			php$phpversion yii module/enable auth-basic
+		popd
 	else
-			current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
-			if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
-				ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
-				install_sso
-			fi
+		current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
+		if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
+			ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
+			install_sso
+		fi
 	fi
 fi
 
