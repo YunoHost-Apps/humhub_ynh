@@ -11,7 +11,7 @@ php_dependencies="php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-curl php${
 # dependencies used by the app (must be on a single line)
 pkg_dependencies="$php_dependencies"
 
-HUMHUB_AUTH_BASIC_VERSION=0.1.0
+HUMHUB_AUTH_BASIC_VERSION=0.1.2
 HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
 
 #=================================================
