@@ -28,6 +28,7 @@ ynh_script_progression --message="Loading installation settings..." --time --wei
 
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
@@ -90,6 +91,15 @@ then
 	# Store file checksum for the new config file location
 	ynh_store_file_checksum --file="/etc/nginx/conf.d/$new_domain.d/$app.conf"
 fi
+
+#=================================================
+# UPDATE HUMHUB CONFIGURATION
+#=================================================
+ynh_script_progression --message="Updating HUMHUB configuration..." --time --weight=1
+
+pushd $final_path/protected
+	php$phpversion yii settings/set base baseUrl http://$new_domain$new_path
+popd
 
 #=================================================
 # RELOAD NGINX
