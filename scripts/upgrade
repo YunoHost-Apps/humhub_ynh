@@ -12,22 +12,22 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=1
+#REMOVEME? ynh_script_progression --message="Loading installation settings..." --weight=1
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_app_setting_get --app=$app --key=path)
-language=$(ynh_app_setting_get --app=$app --key=language)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
+#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
+#REMOVEME? language=$(ynh_app_setting_get --app=$app --key=language)
+#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
+#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
+#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+#REMOVEME? db_user=$db_name
+#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
-fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
-fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
+#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+#REMOVEME? fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
+#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK VERSION
@@ -38,16 +38,16 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
+#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=1
 
 # Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
+#REMOVEME? ynh_backup_before_upgrade
+#REMOVEME? ynh_clean_setup () {
 	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
+#REMOVEME? 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -75,8 +75,8 @@ if [ -z "$fpm_usage" ]; then
 fi
 
 # Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
+#REMOVEME? if ynh_legacy_permissions_exists; then
+#REMOVEME? 	ynh_legacy_permissions_delete_all
 
 	ynh_app_setting_delete --app=$app --key=is_public
 fi
@@ -84,10 +84,10 @@ fi
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+#REMOVEME? ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
+#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -101,28 +101,28 @@ then
 	ynh_script_progression --message="Upgrading source files..." --weight=1
 
 	# Backup user contents
-	mv "$final_path" "$final_path.old"
+	mv "$install_dir" "$install_dir.old"
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
+	ynh_setup_source --dest_dir="$install_dir"
 
 	# Restore user contents
-	cp -a "$final_path.old/uploads/." "$final_path/uploads/."
-	cp -a "$final_path.old/protected/runtime" "$final_path/protected/runtime"
-	cp -a "$final_path.old/protected/config/." "$final_path/protected/config/"
-	cp -a "$final_path.old/protected/modules/." "$final_path/protected/modules/"
-	cp -a "$final_path.old/themes/." "$final_path/themes/"
+	cp -a "$install_dir.old/uploads/." "$install_dir/uploads/."
+	cp -a "$install_dir.old/protected/runtime" "$install_dir/protected/runtime"
+	cp -a "$install_dir.old/protected/config/." "$install_dir/protected/config/"
+	cp -a "$install_dir.old/protected/modules/." "$install_dir/protected/modules/"
+	cp -a "$install_dir.old/themes/." "$install_dir/themes/"
 
 	# Delete old source
-	ynh_secure_remove --file="$final_path.old"
+#REMOVEME? 	ynh_secure_remove --file="$install_dir.old"
 fi
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=1
+#REMOVEME? ynh_script_progression --message="Upgrading dependencies..." --weight=1
 
-ynh_install_app_dependencies $pkg_dependencies
+#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -131,7 +131,7 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=1
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -149,10 +149,10 @@ ynh_add_nginx_config
 
 ynh_replace_string --match_string="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
  --replace_string="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
- --target_file="$final_path/index.php"
+ --target_file="$install_dir/index.php"
 ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev');"\
  --replace_string="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
- --target_file="$final_path/index.php"
+ --target_file="$install_dir/index.php"
 
 #=================================================
 # SETUP APPLICATION
@@ -162,16 +162,16 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Setuping application..." --weight=1
 
-	if [[ ! -d $final_path/$HUMHUB_AUTH_BASIC_PATH ]]; then
+	if [[ ! -d $install_dir/$HUMHUB_AUTH_BASIC_PATH ]]; then
 		install_sso
 
-		pushd $final_path/protected
+		pushd $install_dir/protected
 			php$phpversion yii module/enable auth-basic
 		popd
 	else
-		current_version=$(cat $final_path/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
+		current_version=$(cat $install_dir/$HUMHUB_AUTH_BASIC_PATH/module.json | jq -j '.version')
 		if [ "$current_version" != "$HUMHUB_AUTH_BASIC_VERSION" ]; then
-			ynh_secure_remove $final_path/$HUMHUB_AUTH_BASIC_PATH
+#REMOVEME? 			ynh_secure_remove $install_dir/$HUMHUB_AUTH_BASIC_PATH
 			install_sso
 		fi
 	fi
@@ -182,20 +182,20 @@ fi
 #=================================================
 ynh_script_progression --message="Migrating database..." --weight=1
 
-chown -R $app $final_path/
+chown -R $app $install_dir/
 
-ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0
+ynh_exec_as $app /usr/bin/php$phpversion $install_dir/protected/yii migrate/up --includeModuleMigrations=1 --interactive=0
 
 #=================================================
 # UPDATE MODULES
 #=================================================
 ynh_script_progression --message="Updating modules..." --weight=1
 
-ynh_exec_as $app /usr/bin/php$phpversion $final_path/protected/yii module/update-all --interactive=0
+ynh_exec_as $app /usr/bin/php$phpversion $install_dir/protected/yii module/update-all --interactive=0
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # UPGRADE CRONTAB
@@ -209,9 +209,9 @@ ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
