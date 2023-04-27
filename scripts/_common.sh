@@ -4,7 +4,7 @@
 # COMMON VARIABLES
 #=================================================
 
-HUMHUB_AUTH_BASIC_VERSION=0.1.0
+HUMHUB_AUTH_BASIC_VERSION=0.1.1
 HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
 
 #=================================================
