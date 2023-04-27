@@ -1,0 +1,1 @@
+* **Humhub** nécessite un **domaine racine** (par ex. `humhub.domain.tld`) pour activer les [Pretty URLs](https://docs.humhub.org/docs/admin/installation/#pretty-urls)

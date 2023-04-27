@@ -1,0 +1,1 @@
+* **Humhub** requires a dedicated **root domain** (e.g. `humhub.domain.tld`) to enable [Pretty URLs](https://docs.humhub.org/docs/admin/installation/#pretty-urls)
