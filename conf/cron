@@ -1,2 +1,2 @@
-* * * * * __NAME__ /usr/bin/php__PHPVERSION__  __INSTALL_DIR__/protected/yii queue/run >/dev/null 2>&1
-* * * * * __NAME__ /usr/bin/php__PHPVERSION__  __INSTALL_DIR__/protected/yii cron/run >/dev/null 2>&1
+* * * * * __APP__ /usr/bin/php__PHPVERSION__  __INSTALL_DIR__/protected/yii queue/run >/dev/null 2>&1
+* * * * * __APP__ /usr/bin/php__PHPVERSION__  __INSTALL_DIR__/protected/yii cron/run >/dev/null 2>&1
