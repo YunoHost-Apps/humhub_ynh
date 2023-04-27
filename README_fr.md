@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # HumHub pour YunoHost
 
 [![Niveau d’intégration](https://dash.yunohost.org/integration/humhub.svg)](https://dash.yunohost.org/appci/app/humhub) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/humhub.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/humhub.maintain.svg)
+
 [![Installer HumHub avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=humhub)
 
 *[Read this readme in english.](./README.md)*
