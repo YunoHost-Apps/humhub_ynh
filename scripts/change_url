@@ -21,7 +21,7 @@ ynh_change_url_nginx_config
 #=================================================
 ynh_script_progression --message="Updating HUMHUB configuration..." --weight=1
 
-pushd $final_path/protected
+pushd $install_dir/protected
 	php$phpversion yii settings/set base baseUrl http://$new_domain$new_path
 popd
 
