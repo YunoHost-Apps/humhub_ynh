@@ -20,7 +20,7 @@ HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
 
 local_curl_csrf () {
     # Define url of page to curl
-    local local_page=$(ynh_normalize_url_path $1)
+    local local_page=$1
     local full_path=$path_url$local_page
 
     if [ "${path_url}" == "/" ]; then
