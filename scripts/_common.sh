@@ -4,14 +4,7 @@
 # COMMON VARIABLES
 #=================================================
 
-YNH_PHP_VERSION=7.4
-
-php_dependencies="php${YNH_PHP_VERSION}-imagick php${YNH_PHP_VERSION}-curl php${YNH_PHP_VERSION}-bz2 php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-intl php${YNH_PHP_VERSION}-mysql php${YNH_PHP_VERSION}-zip php${YNH_PHP_VERSION}-apcu-bc php${YNH_PHP_VERSION}-apcu php${YNH_PHP_VERSION}-xml php${YNH_PHP_VERSION}-ldap"
-
-# dependencies used by the app (must be on a single line)
-pkg_dependencies="$php_dependencies"
-
-HUMHUB_AUTH_BASIC_VERSION=0.1.0
+HUMHUB_AUTH_BASIC_VERSION=0.1.1
 HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
 
 #=================================================
@@ -20,10 +13,10 @@ HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
 
 local_curl_csrf () {
     # Define url of page to curl
-    local local_page=$(ynh_normalize_url_path $1)
-    local full_path=$path_url$local_page
+    local local_page=$1
+    local full_path=$path$local_page
 
-    if [ "${path_url}" == "/" ]; then
+    if [ "${path}" == "/" ]; then
         full_path=$local_page
     fi
 
@@ -80,8 +73,8 @@ install_sso() {
     tmp_auth_basic_module="$(mktemp /tmp/humhub_ynh.XXXXXX)"
     wget -q -O $tmp_auth_basic_module "https://github.com/smart4life/humhub-auth-basic/archive/refs/tags/$HUMHUB_AUTH_BASIC_VERSION.tar.gz"
 
-    tar xf $tmp_auth_basic_module -C $final_path/protected/modules
-    mv $final_path/protected/modules/humhub-auth-basic* $final_path/$HUMHUB_AUTH_BASIC_PATH
+    tar xf $tmp_auth_basic_module -C $install_dir/protected/modules
+    mv $install_dir/protected/modules/humhub-auth-basic* $install_dir/$HUMHUB_AUTH_BASIC_PATH
 
     ynh_secure_remove $tmp_auth_basic_module
 }

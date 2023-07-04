@@ -1,7 +1,0 @@
-SOURCE_URL=https://download.humhub.com/downloads/install/humhub-1.13.0.tar.gz
-SOURCE_SUM=9b6d0041c683e382fd7b5d5853a878979b750fc41a8e34d613709b7884a583a1
-SOURCE_SUM_PRG=sha256sum
-SOURCE_FORMAT=tar.gz
-SOURCE_IN_SUBDIR=true
-SOURCE_FILENAME=
-SOURCE_EXTRACT=true
