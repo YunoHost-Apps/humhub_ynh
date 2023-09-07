@@ -17,7 +17,7 @@ admindoc = "https://docs.humhub.org"
 code = "https://github.com/humhub/humhub"
 
 [integration]
-yunohost = ">= 11.1.18"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
 ldap = true
@@ -54,7 +54,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server php8.0-imagick php8.0-curl php8.0-bz2 php8.0-gd php8.0-intl php8.0-mysql php8.0-zip php8.0-apcu php8.0-xml php8.0-ldap"
+    packages = "mariadb-server, php8.0-imagick, php8.0-curl, php8.0-bz2, php8.0-gd, php8.0-intl, php8.0-mysql, php8.0-zip, php8.0-apcu, php8.0-xml, php8.0-ldap"
 
     [resources.database]
     type = "mysql"
