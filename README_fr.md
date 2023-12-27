@@ -32,7 +32,7 @@ HumHub est une plate-forme de réseau social open source avec une grande variét
 * Site officiel de l’app : <https://www.humhub.org>
 * Documentation officielle de l’admin : <https://docs.humhub.org>
 * Dépôt de code officiel de l’app : <https://github.com/humhub/humhub>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_humhub>
+* YunoHost Store: <https://apps.yunohost.org/app/humhub>
 * Signaler un bug : <https://github.com/YunoHost-Apps/humhub_ynh/issues>
 
 ## Informations pour les développeurs
