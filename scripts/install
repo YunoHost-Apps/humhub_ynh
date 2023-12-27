@@ -50,7 +50,7 @@ ynh_add_nginx_config
 # SETUP SQL CREDENTIALS
 #=================================================
 
-ynh_add_config --template="../conf/common.php" --destination="$install_dir/protected/config/common.php"
+ynh_add_config --template="common.php" --destination="$install_dir/protected/config/common.php"
 
 #=================================================
 # DEACTIVATE DEBUG MODE
@@ -133,7 +133,7 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 ynh_script_progression --message="Setuping crontab..." --weight=1
 
-ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
+ynh_add_config --template="cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # END OF SCRIPT
