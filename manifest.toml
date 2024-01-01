@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.14.0~ynh1"
+version = "1.15.2~ynh1"
 
 maintainers = ["Nils Van Zuijlen"]
 
@@ -17,11 +17,14 @@ admindoc = "https://docs.humhub.org"
 code = "https://github.com/humhub/humhub"
 
 [integration]
-yunohost = ">= 11.1.18"
+yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
+
 ldap = true
+
 sso = false
+
 disk = "50M"
 ram.build = "50M"
 ram.runtime = "50M"
@@ -43,8 +46,8 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.14.0.tar.gz"
-        sha256 = "d75923ca8d18d5e031c4ed4a4e2e9ce98fb61fbfcf5268317a76803f7a82a22a"
+        url = "https://download.humhub.com/downloads/install/humhub-1.15.2.tar.gz"
+        sha256 = "fe376390fdfc2037fdf130b21fcc54c027b7c3a3e659e85d6243f53c09566154"
 
     [resources.system_user]
 
@@ -54,7 +57,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server php8.0-imagick php8.0-curl php8.0-bz2 php8.0-gd php8.0-intl php8.0-mysql php8.0-zip php8.0-apcu php8.0-xml php8.0-ldap"
+    packages = "mariadb-server, php8.2-imagick, php8.2-curl, php8.2-bz2, php8.2-gd, php8.2-intl, php8.2-mysql, php8.2-zip, php8.2-apcu, php8.2-xml, php8.2-ldap"
 
     [resources.database]
     type = "mysql"
