@@ -41,11 +41,6 @@ ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring NGINX web server..." --weight=4
-
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
@@ -55,7 +50,7 @@ ynh_add_nginx_config
 # SETUP SQL CREDENTIALS
 #=================================================
 
-ynh_add_config --template="../conf/common.php" --destination="$install_dir/protected/config/common.php"
+ynh_add_config --template="common.php" --destination="$install_dir/protected/config/common.php"
 
 #=================================================
 # DEACTIVATE DEBUG MODE
@@ -138,7 +133,7 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 ynh_script_progression --message="Setuping crontab..." --weight=1
 
-ynh_add_config --template="../conf/cron" --destination="/etc/cron.d/${app}"
+ynh_add_config --template="cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # END OF SCRIPT
