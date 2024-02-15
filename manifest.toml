@@ -5,9 +5,9 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.15.2~ynh1"
+version = "1.15.3~ynh1"
 
-maintainers = ["Nils Van Zuijlen"]
+maintainers = [ "Nils Van Zuijlen" ]
 
 [upstream]
 license = "AGPL-3.0-only"
@@ -46,8 +46,8 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.15.2.tar.gz"
-        sha256 = "fe376390fdfc2037fdf130b21fcc54c027b7c3a3e659e85d6243f53c09566154"
+        url = "https://download.humhub.com/downloads/install/humhub-1.15.3.tar.gz"
+        sha256 = "8546f81a27303e0647b33b2651d3c75e302ed8e115ada008a23fb92881e62020"
 
     [resources.system_user]
 
