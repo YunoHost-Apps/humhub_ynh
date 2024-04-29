@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.15.3~ynh1"
+version = "1.15.3~ynh2"
 
 maintainers = [ "Nils Van Zuijlen" ]
 
