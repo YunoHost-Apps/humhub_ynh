@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.15.3~ynh1"
+version = "1.15.4~ynh1"
 
 maintainers = [ "Nils Van Zuijlen" ]
 
@@ -39,15 +39,15 @@ ram.runtime = "50M"
 
     [install.init_main_permission]
     type = "group"
-    default = false
+    default = "visitors"
 
     [install.admin]
     type = "user"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.15.3.tar.gz"
-        sha256 = "8546f81a27303e0647b33b2651d3c75e302ed8e115ada008a23fb92881e62020"
+        url = "https://download.humhub.com/downloads/install/humhub-1.15.4.tar.gz"
+        sha256 = "0842e08d5117f40b4a49fbabf574bf33a30058e592056051841ff60542be60e2"
 
     [resources.system_user]
 

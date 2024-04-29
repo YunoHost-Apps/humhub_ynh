@@ -19,7 +19,7 @@ NON debe editarse manualmente.
 HumHub is an open source social network platform with a wide variety of use cases as social intranet, community or collaboration platform. HumHub consists of a core application, which can be extended through additional modules and adjusted to your needs by many configuration options. 
 
 
-**Versión proporcionada:** 1.15.3~ynh1
+**Versión proporcionada:** 1.15.4~ynh1
 
 **Demo:** <https://www.humhub.com/en>
 
