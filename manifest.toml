@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.15.5~ynh1"
+version = "1.16.1~ynh1"
 
 maintainers = [ "Nils Van Zuijlen" ]
 
@@ -46,8 +46,8 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.15.5.tar.gz"
-        sha256 = "2ba75535b02f3cce30ee40f69f4d1d15102bc71c1af0c7d93b790434d67190bc"
+        url = "https://download.humhub.com/downloads/install/humhub-1.16.1.tar.gz"
+        sha256 = "9bd9c94f670eb55f0e5246ef51503b67a087f1ac332e49704bcaf9df8b264013"
 
     [resources.system_user]
 
@@ -57,7 +57,7 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "mariadb-server, php8.2-imagick, php8.2-curl, php8.2-bz2, php8.2-gd, php8.2-intl, php8.2-mysql, php8.2-zip, php8.2-apcu, php8.2-xml, php8.2-ldap"
+    packages = "mariadb-server, php8.3-imagick, php8.3-curl, php8.3-bz2, php8.3-gd, php8.3-intl, php8.3-mysql, php8.3-zip, php8.3-apcu, php8.3-xml, php8.3-ldap"
 
     [resources.database]
     type = "mysql"
