@@ -47,7 +47,7 @@ ram.runtime = "50M"
 [resources]
         [resources.sources.main]
         url = "https://download.humhub.com/downloads/install/humhub-1.16.1.tar.gz"
-        sha256 = "9bd9c94f670eb55f0e5246ef51503b67a087f1ac332e49704bcaf9df8b264013"
+        sha256 = "44b79b75320cf1582c865f628986e559925292a076bfedf50347af6ea1cd9331"
 
     [resources.system_user]
 
