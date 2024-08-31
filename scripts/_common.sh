@@ -1,15 +1,11 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
 HUMHUB_AUTH_BASIC_VERSION=0.2.0
 HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
-
-#=================================================
-# PERSONAL HELPERS
-#=================================================
 
 local_curl_csrf () {
     # Define url of page to curl
@@ -37,7 +33,7 @@ local_curl_csrf () {
 
     # Wait untils nginx has fully reloaded (avoid curl fail with http2)
     sleep 2
-    
+
     local cookiefile=/tmp/ynh-$app-cookie.txt
     touch $cookiefile
     chown root $cookiefile
@@ -76,13 +72,5 @@ install_sso() {
     tar xf $tmp_auth_basic_module -C $install_dir/protected/modules
     mv $install_dir/protected/modules/humhub-auth-basic* $install_dir/$HUMHUB_AUTH_BASIC_PATH
 
-    ynh_secure_remove $tmp_auth_basic_module
+    ynh_safe_rm $tmp_auth_basic_module
 }
-
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================
