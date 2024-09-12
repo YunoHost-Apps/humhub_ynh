@@ -37,7 +37,7 @@ HumHub is an open source social network platform with a wide variety of use case
 
 ## Información para desarrolladores
 
-Por favor enviar sus correcciones a la [`branch testing`](https://github.com/YunoHost-Apps/humhub_ynh/tree/testing
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/humhub_ynh/tree/testing).
 
 Para probar la rama `testing`, sigue asÍ:
 
