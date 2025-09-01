@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.16.1~ynh1"
+version = "1.17.3~ynh1"
 
 maintainers = [ "Nils Van Zuijlen" ]
 
@@ -17,7 +17,8 @@ admindoc = "https://docs.humhub.org"
 code = "https://github.com/humhub/humhub"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.1.17"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
 
@@ -46,12 +47,13 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.16.1.tar.gz"
-        sha256 = "44b79b75320cf1582c865f628986e559925292a076bfedf50347af6ea1cd9331"
+        url = "https://download.humhub.com/downloads/install/humhub-1.17.3.tar.gz"
+        sha256 = "764f2daa2ec20229443e4e43b93239f6d9f3858e1943cab04e2b0e0991ccea85"
 
     [resources.system_user]
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.permissions]
     main.url = "/"

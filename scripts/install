@@ -1,48 +1,23 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
-#=================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#=================================================
-
-fpm_footprint="low"
-fpm_free_footprint=0
-fpm_usage="low"
-
-ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
-ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
-ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
+ynh_app_setting_set --key=php_upload_max_filesize --value=1G
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --weight=1
+ynh_script_progression "Setting up source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
 
 #=================================================
-# PHP-FPM CONFIGURATION
+# CONFIGURE NGINX
 #=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=1
 
-# Create a dedicated PHP-FPM config
-ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-
-# Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 #=================================================
 # SPECIFIC SETUP
@@ -50,57 +25,54 @@ ynh_add_nginx_config
 # SETUP SQL CREDENTIALS
 #=================================================
 
-ynh_add_config --template="common.php" --destination="$install_dir/protected/config/common.php"
+ynh_config_add --template="common.php" --destination="$install_dir/protected/config/common.php"
 
 #=================================================
 # DEACTIVATE DEBUG MODE
 #=================================================
 
-ynh_replace_string --match_string="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
- --replace_string="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
- --target_file="$install_dir/index.php"
-ynh_replace_string --match_string="defined('YII_ENV') or define('YII_ENV', 'dev');"\
- --replace_string="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
- --target_file="$install_dir/index.php"
+ynh_replace --match="defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --replace="// defined('YII_DEBUG') or define('YII_DEBUG', true);"\
+ --file="$install_dir/index.php"
+ynh_replace --match="defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --replace="// defined('YII_ENV') or define('YII_ENV', 'dev');"\
+ --file="$install_dir/index.php"
 
 #=================================================
 # SETUP APPLICATION WITH CURL
 #=================================================
 
-# Set right permissions for curl install
-chown -R $app: $install_dir
-
 # Set the app as temporarily public for curl call
-ynh_script_progression --message="Configuring SSOwat..." --weight=30
+ynh_script_progression "Configuring SSOwat..."
 
 # Reload SSOwat config
 yunohost app ssowatconf
 
 # Installation with curl
-ynh_script_progression --message="Finalizing installation..." --weight=2
+ynh_script_progression "Finalizing installation..."
 
 install_sso
 
 pushd $install_dir/protected
-	php$phpversion yii migrate/up --includeModuleMigrations=1 --interactive=0
+	php$php_version yii migrate/up --includeModuleMigrations=1 --interactive=0
 
-	php$phpversion yii settings/set ldap enabled '1'
-	php$phpversion yii settings/set ldap hostname 'localhost'
-	php$phpversion yii settings/set ldap port 389
-	php$phpversion yii settings/set ldap encryption ''
-	php$phpversion yii settings/set ldap username ''
-	php$phpversion yii settings/set ldap password ''
-	php$phpversion yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
-	php$phpversion yii settings/set ldap loginFilter '(uid=%s)'
-	php$phpversion yii settings/set ldap userFilter 'objectClass=mailAccount'
-	php$phpversion yii settings/set ldap emailAttribute 'mail'
-	php$phpversion yii settings/set ldap usernameAttribute 'uid'
-	php$phpversion yii settings/set ldap idAttribute 'uid'
-	php$phpversion yii settings/set ldap refreshUsers '1'
-	php$phpversion yii settings/set ldap refreshUsers '1'
+	php$php_version yii settings/set ldap enabled '1'
+	php$php_version yii settings/set ldap hostname 'localhost'
+	php$php_version yii settings/set ldap port 389
+	php$php_version yii settings/set ldap encryption ''
+	php$php_version yii settings/set ldap username ''
+	php$php_version yii settings/set ldap password ''
+	php$php_version yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
+	php$php_version yii settings/set ldap loginFilter '(uid=%s)'
+	php$php_version yii settings/set ldap userFilter 'objectClass=mailAccount'
+	php$php_version yii settings/set ldap emailAttribute 'mail'
+	php$php_version yii settings/set ldap usernameAttribute 'uid'
+	php$php_version yii settings/set ldap idAttribute 'uid'
+	php$php_version yii settings/set ldap refreshUsers '1'
+	php$php_version yii settings/set ldap refreshUsers '1'
 
-	php$phpversion yii ldap/sync
-	php$phpversion yii user/make-admin ${admin}
+	php$php_version yii ldap/sync
+	php$php_version yii user/make-admin ${admin}
 
 	ynh_local_curl "/index.php?r=installer/index/go"
 
@@ -114,15 +86,15 @@ pushd $install_dir/protected
 	local_curl_csrf "/index.php?r=installer/config/sample-data" \
 		"SampleDataForm[sampleData]=0"
 
-	php$phpversion yii settings/set user auth.anonymousRegistration '0'
-	php$phpversion yii settings/set user auth.allowGuestAccess '0'
-	php$phpversion yii settings/set user auth.internalUsersCanInvite '0'
+	php$php_version yii settings/set user auth.anonymousRegistration '0'
+	php$php_version yii settings/set user auth.allowGuestAccess '0'
+	php$php_version yii settings/set user auth.internalUsersCanInvite '0'
 
-	php$phpversion yii module/enable auth-basic
+	php$php_version yii module/enable auth-basic
 
 popd
 
-ynh_store_file_checksum --file="$install_dir/protected/config/common.php"
+ynh_store_file_checksum "$install_dir/protected/config/common.php"
 
 chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
@@ -131,12 +103,12 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 # SETUP CRON CONFIGURATION
 #=================================================
-ynh_script_progression --message="Setuping crontab..." --weight=1
+ynh_script_progression "Setuping crontab..."
 
-ynh_add_config --template="cron" --destination="/etc/cron.d/${app}"
+ynh_config_add --template="cron" --destination="/etc/cron.d/${app}"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression "Installation of $app completed"
