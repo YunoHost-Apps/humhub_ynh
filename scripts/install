@@ -10,8 +10,7 @@ ynh_app_setting_set --key=php_upload_max_filesize --value=1G
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-ynh_setup_source --dest_dir="$install_dir"
-
+ynh_setup_source --dest_dir="$install_dir" --source_id="main"
 
 #=================================================
 # CONFIGURE NGINX
@@ -51,10 +50,7 @@ yunohost app ssowatconf
 # Installation with curl
 ynh_script_progression "Finalizing installation..."
 
-install_sso
-
-# Fix from not released https://github.com/smart4life/humhub-auth-basic/pull/7/files
-ynh_config_add --template="common.php" --destination="$install_dir/protected/modules/auth-basic/Events.php"
+ynh_setup_source --dest_dir="$install_dir/protected/modules/auth-basic" --source_id="auth_basic"
 
 pushd $install_dir/protected
 	php$php_version yii migrate/up --includeModuleMigrations=1 --interactive=0

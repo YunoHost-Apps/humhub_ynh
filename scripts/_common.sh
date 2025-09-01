@@ -4,9 +4,6 @@
 # COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
-HUMHUB_AUTH_BASIC_VERSION=0.2.0
-HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
-
 local_curl_csrf () {
     # Define url of page to curl
     local local_page=$1
@@ -63,14 +60,4 @@ myynh_urlencode() {
     fi
     echo "${data##/?}"
     return 0
-}
-
-install_sso() {
-    tmp_auth_basic_module="$(mktemp /tmp/humhub_ynh.XXXXXX)"
-    wget -q -O $tmp_auth_basic_module "https://github.com/smart4life/humhub-auth-basic/archive/refs/tags/$HUMHUB_AUTH_BASIC_VERSION.tar.gz"
-
-    tar xf $tmp_auth_basic_module -C $install_dir/protected/modules
-    mv $install_dir/protected/modules/humhub-auth-basic* $install_dir/$HUMHUB_AUTH_BASIC_PATH
-
-    ynh_safe_rm $tmp_auth_basic_module
 }

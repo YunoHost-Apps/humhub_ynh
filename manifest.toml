@@ -50,6 +50,10 @@ ram.runtime = "50M"
         url = "https://download.humhub.com/downloads/install/humhub-1.17.3.tar.gz"
         sha256 = "764f2daa2ec20229443e4e43b93239f6d9f3858e1943cab04e2b0e0991ccea85"
 
+        [resources.sources.auth_basic]
+        url = "https://github.com/smart4life/humhub-auth-basic/archive/refs/heads/fix-humhub-1.15.tar.gz"
+        sha256 = "79d3afa54190e969836c34d5bedab2f8a6ccd6ab67bdd03274db0c40b3b7ad4e"
+
     [resources.system_user]
 
     [resources.install_dir]
