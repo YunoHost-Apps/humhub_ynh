@@ -53,6 +53,9 @@ ynh_script_progression "Finalizing installation..."
 
 install_sso
 
+# Fix from not released https://github.com/smart4life/humhub-auth-basic/pull/7/files
+ynh_config_add --template="common.php" --destination="$install_dir/protected/modules/auth-basic/Events.php"
+
 pushd $install_dir/protected
 	php$php_version yii migrate/up --includeModuleMigrations=1 --interactive=0
 
