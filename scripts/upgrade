@@ -86,4 +86,6 @@ ynh_config_add --template="cron" --destination="/etc/cron.d/${app}"
 # END OF SCRIPT
 #=================================================
 
+ynh_config_add_phpfpm
+
 ynh_script_progression "Upgrade of $app completed"
