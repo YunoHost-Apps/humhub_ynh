@@ -1,14 +1,7 @@
 #!/bin/bash
 
 #=================================================
-# COMMON VARIABLES
-#=================================================
-
-HUMHUB_AUTH_BASIC_VERSION=0.2.0
-HUMHUB_AUTH_BASIC_PATH="/protected/modules/auth-basic"
-
-#=================================================
-# PERSONAL HELPERS
+# COMMON VARIABLES AND CUSTOM HELPERS
 #=================================================
 
 local_curl_csrf () {
@@ -37,7 +30,7 @@ local_curl_csrf () {
 
     # Wait untils nginx has fully reloaded (avoid curl fail with http2)
     sleep 2
-    
+
     local cookiefile=/tmp/ynh-$app-cookie.txt
     touch $cookiefile
     chown root $cookiefile
@@ -68,21 +61,3 @@ myynh_urlencode() {
     echo "${data##/?}"
     return 0
 }
-
-install_sso() {
-    tmp_auth_basic_module="$(mktemp /tmp/humhub_ynh.XXXXXX)"
-    wget -q -O $tmp_auth_basic_module "https://github.com/smart4life/humhub-auth-basic/archive/refs/tags/$HUMHUB_AUTH_BASIC_VERSION.tar.gz"
-
-    tar xf $tmp_auth_basic_module -C $install_dir/protected/modules
-    mv $install_dir/protected/modules/humhub-auth-basic* $install_dir/$HUMHUB_AUTH_BASIC_PATH
-
-    ynh_secure_remove $tmp_auth_basic_module
-}
-
-#=================================================
-# EXPERIMENTAL HELPERS
-#=================================================
-
-#=================================================
-# FUTURE OFFICIAL HELPERS
-#=================================================
