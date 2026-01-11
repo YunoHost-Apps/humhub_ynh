@@ -9,8 +9,12 @@ return [
         ],
     ],
     'modules' => [
+        'urlManager' => [
+            'showScriptName' => false,
+            'enablePrettyUrl' => true,
+        ],
         'user' => [
-            'minimumUsernameLength' => 1
-        ]
+            'minimumUsernameLength' => 1,
+        ],
     ]
 ];
