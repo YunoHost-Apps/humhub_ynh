@@ -7,12 +7,12 @@ return [
             'username' => '__DB_USER__',
             'password' => '__DB_PWD__',
         ],
-    ],
-    'modules' => [
         'urlManager' => [
             'showScriptName' => false,
             'enablePrettyUrl' => true,
         ],
+    ],
+    'modules' => [
         'user' => [
             'minimumUsernameLength' => 1,
         ],
