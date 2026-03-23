@@ -5,7 +5,7 @@ name = "HumHub"
 description.en = "Enterprise Social Network"
 description.fr = "Réseau Social d'Entreprise"
 
-version = "1.18.1~ynh1"
+version = "1.18.2~ynh1"
 
 maintainers = [ "CodeShakingSheep" ]
 
@@ -47,8 +47,8 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://download.humhub.com/downloads/install/humhub-1.18.1.tar.gz"
-        sha256 = "bc874e92e71d3273f391fd660b8ee4916eb891450826471d434c2a32bdc4b70a"
+        url = "https://download.humhub.com/downloads/install/humhub-1.18.2.tar.gz"
+        sha256 = "c06a22ec3d5a6d402731ef5d1dd2911a24601e38182901fbc8d3cdb36331d156"
 
         [resources.sources.auth_basic]
         url = "https://github.com/smart4life/humhub-auth-basic/archive/refs/heads/fix-humhub-1.15.tar.gz"
