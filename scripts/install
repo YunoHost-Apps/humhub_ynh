@@ -63,7 +63,7 @@ pushd $install_dir/protected
 	php$php_version yii settings/set ldap password ''
 	php$php_version yii settings/set ldap baseDn 'ou=users,dc=yunohost,dc=org'
 	php$php_version yii settings/set ldap loginFilter '(uid=%s)'
-	php$php_version yii settings/set ldap userFilter 'objectClass=mailAccount'
+	php$php_version yii settings/set ldap userFilter '('objectClass=mailAccount')'
 	php$php_version yii settings/set ldap emailAttribute 'mail'
 	php$php_version yii settings/set ldap usernameAttribute 'uid'
 	php$php_version yii settings/set ldap idAttribute 'uid'
